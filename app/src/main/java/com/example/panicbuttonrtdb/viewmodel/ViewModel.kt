@@ -22,11 +22,16 @@ class ViewModel(private val context: Context) : ViewModel() {
     var currentUserName by mutableStateOf("")
     var currentUserHouseNumber by mutableStateOf("")
 
+
     private val _monitorData = MutableLiveData<List<MonitorRecord>>()
     val monitorData: LiveData<List<MonitorRecord>> get() = _monitorData
 
     fun isUserLoggedIn(): Boolean {
         return userPreferences.isUserLoggedIn()
+    }
+
+    fun isAdminLoggedIn(): Boolean {
+        return userPreferences.isAdminLoggedIn()
     }
 
     // LiveData untuk memantau status buzzer
@@ -111,6 +116,7 @@ class ViewModel(private val context: Context) : ViewModel() {
 
         // Periksa apakah login sebagai admin
         if (houseNumber == adminHouseNumber && password == adminPassword) {
+            userPreferences.saveAdminLoggedIn(true)
             // Jika sesuai kredensial admin, anggap login sebagai admin
             onResult(true, true)
             return
@@ -155,13 +161,20 @@ class ViewModel(private val context: Context) : ViewModel() {
         currentUserHouseNumber = "" // Reset nomor rumah saat logout
     }
 
+    fun adminLogout() {
+        userPreferences.saveAdminLoggedIn(false)
+        userPreferences.clearUserInfo()
+    }
+
     // Fungsi untuk menyimpan data ke path /monitor di Firebase
-    fun saveMonitorData() {
+    fun saveMonitorData(message: String, priority: String) {
         val monitorRef = database.getReference("monitor")
 
         val data = mapOf(
             "name" to currentUserName,
             "houseNumber" to currentUserHouseNumber,
+            "message" to message,
+            "priority" to priority,
             "time" to getCurrentTimestampFormatted() // Waktu saat toggle diaktifkan
         )
 
@@ -200,7 +213,7 @@ class ViewModel(private val context: Context) : ViewModel() {
         monitorRef.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val records = mutableListOf<MonitorRecord>()
-                for (recordSnapshot in snapshot.children) {
+                for (recordSnapshot in snapshot.children.reversed()) {
                     val record = recordSnapshot.getValue(MonitorRecord::class.java)
                     record?.let { records.add(it) }
                 }
@@ -213,6 +226,32 @@ class ViewModel(private val context: Context) : ViewModel() {
             }
         })
     }
+
+    fun getHistoryByHouseNumber(houseNumber: String): LiveData<List<MonitorRecord>> {
+        val historyLiveData = MutableLiveData<List<MonitorRecord>>()
+        val monitorRef = database.getReference("monitor")
+
+        monitorRef.orderByChild("houseNumber").equalTo(houseNumber)
+            .addValueEventListener(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    val historyList = mutableListOf<MonitorRecord>()
+                    for (data in snapshot.children) {
+                        val record = data.getValue(MonitorRecord::class.java)
+                        if (record != null) {
+                            historyList.add(record)
+                        }
+                    }
+                    historyLiveData.value = historyList
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    Log.e("Firebase", "Error fetching data: ${error.message}")
+                }
+            })
+
+        return historyLiveData
+    }
+
 
     private fun getCurrentTimestampFormatted(): String {
         val sdf = java.text.SimpleDateFormat("yyyy-MM-dd 'waktu' HH:mm", java.util.Locale.getDefault())

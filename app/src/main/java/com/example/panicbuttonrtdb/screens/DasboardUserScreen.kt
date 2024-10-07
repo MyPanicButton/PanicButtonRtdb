@@ -9,9 +9,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -28,6 +30,10 @@ fun DashboardUserScreen(viewModel: ViewModel, onLogout: () -> Unit) {
     val buzzerState by viewModel.buzzerState.observeAsState(initial = "Off")
     var showDialog by remember { mutableStateOf(false) } // State untuk menampilkan dialog
     var pendingToggleState by remember { mutableStateOf(false) } // State untuk menyimpan toggle sementara
+    var selectedPriority by remember { mutableStateOf("biasa") }
+
+    var message by remember { mutableStateOf("") }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -62,18 +68,45 @@ fun DashboardUserScreen(viewModel: ViewModel, onLogout: () -> Unit) {
             Text(text = "Logout")
         }
 
+        // Logic untuk otomatis mematikan toggle setelah 10 detik
+        if (buzzerState == "On") {
+            LaunchedEffect(key1 = buzzerState) {
+                kotlinx.coroutines.delay(10000) // Tunggu selama 10 detik
+                viewModel.setBuzzerState("Off")
+            }
+        }
+
         // Dialog konfirmasi
         if (showDialog) {
             AlertDialog(
                 onDismissRequest = { showDialog = false },
                 title = { Text(text = "Konfirmasi") },
-                text = { Text("Apakah Anda yakin ingin mengaktifkan buzzer?") },
+                text = {
+                    Column {
+                        Text(text = "Apakah Anda yakin ingin mengaktifkan buzzer?")
+                        Spacer(modifier = Modifier.height(8.dp))
+                        OutlinedTextField(
+                            value = message,
+                            onValueChange = { message = it },
+                            label = { Text("Tambahkan Pesan") },
+                            placeholder = { Text("Pesan opsional...") }
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        PrioritySelection(
+                            selectedPriority = selectedPriority,
+                            onPrioritySelected = { selectedPriority = it }
+                        )
+                    }
+                },
                 confirmButton = {
                     Button(
                         onClick = {
                             // Jika pengguna mengonfirmasi, aktifkan buzzer
                             viewModel.setBuzzerState("On")
-                            viewModel.saveMonitorData()
+                            viewModel.saveMonitorData(
+                                message = message,
+                                priority = selectedPriority
+                            )
                             showDialog = false
                         }
                     ) {

@@ -13,5 +13,7 @@ data class User (
 data class MonitorRecord(
     val name: String = "",
     val houseNumber: String = "",
+    val message: String = "",
+    val priority: String = "",
     val time: String = ""
 )

@@ -33,4 +33,14 @@ class UserPreferences(context: Context) {
     fun clearUserInfo() {
         prefs.edit().clear().apply()
     }
+
+    // Simpan status admin login
+    fun saveAdminLoggedIn(isLoggedIn: Boolean) {
+        prefs.edit().putBoolean("isAdminLoggedIn", isLoggedIn).apply()
+    }
+
+    // Cek apakah admin sudah login
+    fun isAdminLoggedIn(): Boolean {
+        return prefs.getBoolean("isAdminLoggedIn", false)
+    }
 }

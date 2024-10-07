@@ -3,11 +3,14 @@ package com.example.panicbuttonrtdb.navigation
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.panicbuttonrtdb.screens.DashboardAdminScreen
 import com.example.panicbuttonrtdb.screens.DashboardUserScreen
+import com.example.panicbuttonrtdb.screens.HistoryScreen
 import com.example.panicbuttonrtdb.screens.LoginScreen
 import com.example.panicbuttonrtdb.screens.SignUpScreen
 import com.example.panicbuttonrtdb.viewmodel.ViewModel
@@ -22,11 +25,18 @@ fun MainApp() {
 
 
     // Cek status login untuk menentukan layar awal
-    val startDestination = if (viewModel.isUserLoggedIn()) {
-        "dashboard" // Jika pengguna sudah login
-    } else {
-        "login" // Jika pengguna belum login
-    }
+    val startDestination =
+        if (viewModel.isAdminLoggedIn()){
+            "dashboard_admin"
+        } else if (viewModel.isUserLoggedIn()) {
+            "dashboard"
+        } else
+            "login"
+//        if (viewModel.isUserLoggedIn()) {
+//        "dashboard" // Jika pengguna sudah login
+//    } else {
+//        "login" // Jika pengguna belum login
+//    }
 
     NavHost(navController = navController, startDestination = startDestination) {
         // Halaman Sign Up
@@ -54,7 +64,25 @@ fun MainApp() {
         }
 
         composable("dashboard_admin") {
-            DashboardAdminScreen(viewModel = viewModel)
+            DashboardAdminScreen(
+                navController,
+                viewModel = viewModel,
+                onLogout = {
+                    viewModel.adminLogout()
+                    navController.navigate("login")
+                }
+            )
+        }
+
+        // Halaman History untuk nomor rumah tertentu
+        composable(
+            route = "history/{houseNumber}",
+            arguments = listOf(navArgument("houseNumber") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val houseNumber = backStackEntry.arguments?.getString("houseNumber")
+            if (houseNumber != null) {
+                HistoryScreen(navController = navController, viewModel = viewModel, houseNumber = houseNumber)
+            }
         }
     }
 }
