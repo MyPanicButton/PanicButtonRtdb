@@ -1,4 +1,4 @@
-package com.example.panicbuttonrtdb.screens
+package com.example.panicbuttonrtdb.prensentation.screens
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer

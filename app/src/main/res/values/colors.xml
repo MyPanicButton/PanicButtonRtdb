@@ -7,4 +7,15 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <color name="primary">#E7706F</color>
+    <color name="font">#BA4661</color>
+    <color name="defauld">#C4C7D0</color>
+    <color name="background">#F1F3F4</color>
+    <color name="font2">#373335</color>
+    <color name="font3">#626262</color>
+    <color name="merah">#80FF0000</color>
+    <color name="biru">#8056B0F8</color>
+    <color name="merah_pudar">#26FF0000</color>
+    <color name="pudar">#2556B0F8</color>
 </resources>

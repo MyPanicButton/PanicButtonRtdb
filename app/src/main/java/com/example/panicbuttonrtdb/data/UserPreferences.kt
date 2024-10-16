@@ -1,4 +1,4 @@
-package com.example.panicbuttonrtdb.viewmodel
+package com.example.panicbuttonrtdb.data
 
 import android.content.Context
 

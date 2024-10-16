@@ -1,4 +1,4 @@
-package com.example.panicbuttonrtdb.screens
+package com.example.panicbuttonrtdb.prensentation.screens
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
@@ -26,7 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.panicbuttonrtdb.viewmodel.MonitorRecord
+import com.example.panicbuttonrtdb.data.MonitorRecord
 import com.example.panicbuttonrtdb.viewmodel.ViewModel
 
 @Composable

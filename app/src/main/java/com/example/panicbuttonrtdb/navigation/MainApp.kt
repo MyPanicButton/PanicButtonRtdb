@@ -8,11 +8,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.panicbuttonrtdb.screens.DashboardAdminScreen
-import com.example.panicbuttonrtdb.screens.DashboardUserScreen
-import com.example.panicbuttonrtdb.screens.HistoryScreen
-import com.example.panicbuttonrtdb.screens.LoginScreen
-import com.example.panicbuttonrtdb.screens.SignUpScreen
+import com.example.panicbuttonrtdb.prensentation.screens.DashboardAdminScreen
+import com.example.panicbuttonrtdb.prensentation.screens.DashboardUserScreen
+import com.example.panicbuttonrtdb.prensentation.screens.HistoryScreen
+import com.example.panicbuttonrtdb.prensentation.screens.LoginScreen
+import com.example.panicbuttonrtdb.prensentation.screens.SignUpScreen
 import com.example.panicbuttonrtdb.viewmodel.ViewModel
 import com.example.panicbuttonrtdb.viewmodel.ViewModelFactory
 
