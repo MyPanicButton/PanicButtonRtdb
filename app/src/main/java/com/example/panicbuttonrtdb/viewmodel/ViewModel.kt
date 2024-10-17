@@ -8,6 +8,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.panicbuttonrtdb.data.MonitorRecord
 import com.example.panicbuttonrtdb.data.User
 import com.example.panicbuttonrtdb.data.UserPreferences
@@ -15,6 +16,9 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 
 class ViewModel(private val context: Context) : ViewModel() {
 
@@ -28,6 +32,9 @@ class ViewModel(private val context: Context) : ViewModel() {
 
     private val _monitorData = MutableLiveData<List<MonitorRecord>>()
     val monitorData: LiveData<List<MonitorRecord>> get() = _monitorData
+
+    private val _latestRecord = MutableStateFlow(MonitorRecord())
+    val latestRecord: StateFlow<MonitorRecord> = _latestRecord
 
     fun isUserLoggedIn(): Boolean {
         return userPreferences.isUserLoggedIn()
@@ -45,6 +52,10 @@ class ViewModel(private val context: Context) : ViewModel() {
         // Ambil data pengguna yang tersimpan saat aplikasi dibuka kembali
         currentUserName = userPreferences.getUserName() ?: ""
         currentUserHouseNumber = userPreferences.getHouseNumber() ?: ""
+    }
+
+    init {
+        fetchLatestRecord()
     }
 
     init {
@@ -229,6 +240,28 @@ class ViewModel(private val context: Context) : ViewModel() {
             }
         })
     }
+
+    private fun fetchLatestRecord() {
+        val latestData = database.getReference("monitor")
+        latestData.orderByKey().limitToLast(1)
+            .addValueEventListener(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    if (snapshot.exists()) {
+                        val data = snapshot.children.first().getValue(MonitorRecord::class.java)
+                        data?.let {
+                            viewModelScope.launch {
+                                _latestRecord.emit(it)
+                            }
+                        }
+                    }
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    // Handle error
+                }
+            })
+    }
+
 
     fun getHistoryByHouseNumber(houseNumber: String): LiveData<List<MonitorRecord>> {
         val historyLiveData = MutableLiveData<List<MonitorRecord>>()

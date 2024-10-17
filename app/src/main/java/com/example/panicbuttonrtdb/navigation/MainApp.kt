@@ -8,6 +8,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.panicbuttonrtdb.data.MonitorRecord
 import com.example.panicbuttonrtdb.prensentation.screens.DashboardAdminScreen
 import com.example.panicbuttonrtdb.prensentation.screens.DashboardUserScreen
 import com.example.panicbuttonrtdb.prensentation.screens.HistoryScreen
@@ -66,11 +67,12 @@ fun MainApp() {
         composable("dashboard_admin") {
             DashboardAdminScreen(
                 navController,
+                record = MonitorRecord(),
                 viewModel = viewModel,
-                onLogout = {
-                    viewModel.adminLogout()
-                    navController.navigate("login")
-                }
+//                onLogout = {
+//                    viewModel.adminLogout()
+//                    navController.navigate("login")
+//                }
             )
         }
 
