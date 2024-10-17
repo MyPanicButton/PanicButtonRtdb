@@ -18,4 +18,6 @@
     <color name="biru">#8056B0F8</color>
     <color name="merah_pudar">#26FF0000</color>
     <color name="pudar">#2556B0F8</color>
+    <color name="background_button">#40C3C3C3</color>
+    <color name="default_color">#C4C7D0</color>
 </resources>

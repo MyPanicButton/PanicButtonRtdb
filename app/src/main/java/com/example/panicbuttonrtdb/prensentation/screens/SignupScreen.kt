@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
@@ -37,6 +38,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.panicbuttonrtdb.R
+import com.example.panicbuttonrtdb.prensentation.components.OutlinedTextFieldPassword
 import com.example.panicbuttonrtdb.viewmodel.ViewModel
 import com.example.panicbuttonrtdb.viewmodel.ViewModelFactory
 
@@ -47,7 +49,7 @@ fun SignUpScreen(
     viewModel: ViewModel = viewModel(factory = ViewModelFactory(LocalContext.current))) {
     var name by remember { mutableStateOf("") }
     var houseNumber by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
+    var (password, setPassword) = remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") } // Untuk pesan error
 
@@ -91,8 +93,9 @@ fun SignUpScreen(
                     ),
                     leadingIcon = {
                         Icon(
-                            painter = painterResource(id = R.drawable.ic_profile),
-                            contentDescription = "ic profile"
+                            painter = painterResource(id = R.drawable.ic_user),
+                            contentDescription = "ic profile",
+                            modifier = Modifier.size(24.dp)
                         )
                     },
                     colors = OutlinedTextFieldDefaults.colors(
@@ -118,7 +121,8 @@ fun SignUpScreen(
                     leadingIcon = {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_home),
-                            contentDescription = "ic home"
+                            contentDescription = "ic home",
+                            modifier = Modifier.size(24.dp)
                         )
                     },
                     colors = OutlinedTextFieldDefaults.colors(
@@ -131,30 +135,7 @@ fun SignUpScreen(
                 )
                 Spacer(modifier = Modifier.height(12.dp))
 
-                OutlinedTextField(
-                    value = password,
-                    onValueChange = {password = it},
-                    label = { Text(text = "Password") },
-                    shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(
-                        imeAction = ImeAction.Next
-                    ),
-                    leadingIcon = {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_password),
-                            contentDescription = "ic password"
-                        )
-                    },
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = colorResource(id = R.color.font),
-                        focusedLabelColor = colorResource(id = R.color.font),
-                        focusedLeadingIconColor = colorResource(id = R.color.font),
-                        unfocusedLeadingIconColor = colorResource(id = R.color.defauld),
-                        cursorColor = colorResource(id = R.color.font)
-                    )
-                )
+                OutlinedTextFieldPassword(password, setPassword)
 
                 Spacer(modifier = Modifier.height(12.dp))
 

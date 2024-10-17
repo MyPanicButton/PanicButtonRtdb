@@ -49,13 +49,15 @@ fun MainApp() {
         composable("login") {
             LoginScreen(
                 navController = navController,
-                viewModel = viewModel // Mengoper ViewModel ke LoginScreen
+                viewModel = viewModel, // Mengoper ViewModel ke LoginScreen
+                context = context
             )
         }
 
         // Halaman Dashboard
         composable("dashboard") {
             DashboardUserScreen(
+                context = context,
                 viewModel = viewModel,
                 onLogout = {
                     viewModel.logout() // Panggil fungsi logout dari ViewModel
@@ -66,13 +68,14 @@ fun MainApp() {
 
         composable("dashboard_admin") {
             DashboardAdminScreen(
-                navController,
+                context = context,
+                navController = navController,
                 record = MonitorRecord(),
                 viewModel = viewModel,
-//                onLogout = {
-//                    viewModel.adminLogout()
-//                    navController.navigate("login")
-//                }
+                onLogout = {
+                    viewModel.adminLogout()
+                    navController.navigate("login")
+                }
             )
         }
 

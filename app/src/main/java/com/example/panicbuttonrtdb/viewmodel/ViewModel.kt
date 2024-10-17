@@ -262,6 +262,32 @@ class ViewModel(private val context: Context) : ViewModel() {
             })
     }
 
+    fun fetchDataRecordTakeThree() {
+        val monitorRef = database.getReference("monitor")
+
+        monitorRef.orderByKey().limitToLast(4) // take 4 data terbaru
+            .addValueEventListener(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    val records = mutableListOf<MonitorRecord>()
+
+                    for ((count, recordSnapshot) in snapshot.children.reversed().withIndex()) {
+                        if (count != 0) { // lewati data pertama
+                            val record = recordSnapshot.getValue(MonitorRecord::class.java)
+                            record?.let { records.add(it) }
+                        }
+                    }
+
+                    _monitorData.value = records.take(3) // take 3 data
+                    Log.d("Firebase", "Monitor Record: $records")
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    Log.e("Firebase", "Failed to fetch monitor data", error.toException())
+                }
+            })
+    }
+
+
 
     fun getHistoryByHouseNumber(houseNumber: String): LiveData<List<MonitorRecord>> {
         val historyLiveData = MutableLiveData<List<MonitorRecord>>()

@@ -1,6 +1,12 @@
 package com.example.panicbuttonrtdb.prensentation.screens
 
+import android.app.Activity
+import android.content.Context
+import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,6 +17,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -18,6 +26,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
@@ -31,8 +40,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -45,9 +56,14 @@ import com.example.panicbuttonrtdb.viewmodel.ViewModel
 @Composable
 fun DashboardUserScreen(
     modifier: Modifier = Modifier,
+    context: Context,
     viewModel: ViewModel,
     onLogout: () -> Unit
 ) {
+    BackHandler {
+        (context as? Activity)?.finish()
+    }
+
     val buzzerState by viewModel.buzzerState.observeAsState(initial = "Off")
     var showDialog by remember { mutableStateOf(false) } // State untuk menampilkan dialog
     var pendingToggleState by remember { mutableStateOf(false) } // State untuk menyimpan toggle sementara
@@ -75,6 +91,15 @@ fun DashboardUserScreen(
                 fontWeight = FontWeight.SemiBold,
                 color = Color.White
             )
+            Text(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.Start)
+                    .padding(start = 24.dp, top = 28.dp),
+                text = "Selamat Datang",
+                fontSize = 14.sp,
+                color = Color.White
+            )
         }
         Column(
             modifier
@@ -83,9 +108,9 @@ fun DashboardUserScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Card(
-                modifier
+                modifier = Modifier
                     .padding(top = 140.dp)
-                    .height(114.dp)
+                    .height(96.dp)
                     .fillMaxWidth()
                     .padding(horizontal = 24.dp),
                 elevation = CardDefaults.cardElevation(4.dp),
@@ -103,17 +128,33 @@ fun DashboardUserScreen(
                     horizontalArrangement = Arrangement.Absolute.SpaceBetween
                 ) {
                     Column {
-                        Text(
-                            text = "Selamat Datang",
-                            fontSize = 14.sp,
-                            color = colorResource(id = R.color.font2)
-                        )
-                        Text(
-                            text = viewModel.currentUserName,
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            color = colorResource(id = R.color.font)
-                        )
+                        Row(
+                            modifier
+                                .wrapContentWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Image(
+                                modifier = Modifier
+                                    .clip(CircleShape)
+                                    .size(36.dp)
+                                    .border(
+                                        width = 2.dp,
+                                        color = colorResource(id = R.color.font),
+                                        shape = RoundedCornerShape(100.dp)
+                                    )
+                                    .clickable { },
+                                painter = painterResource(id = R.drawable.ic_empty_profile),
+                                contentDescription = "profile_image",
+                                contentScale = ContentScale.Crop
+                            )
+                            Text(
+                                text = viewModel.currentUserName,
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = colorResource(id = R.color.font)
+                            )
+                        }
                         Spacer(modifier = Modifier.height(16.dp))
                         Row(
                             horizontalArrangement = Arrangement.spacedBy(4.dp)
@@ -131,7 +172,12 @@ fun DashboardUserScreen(
                             )
                         }
                     }
-                    IconButton(onClick = onLogout) {
+                    IconButton(
+                        onClick = onLogout,
+                        colors = IconButtonDefaults.iconButtonColors(
+                            containerColor = colorResource(id = R.color.background_button)
+                        )
+                    ) {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_logout),
                             contentDescription = "logout icon",
@@ -276,7 +322,28 @@ fun DashboardUserScreen(
                     }
                 )
             }
-
+            Column(
+                modifier
+                    .fillMaxSize()
+                    .background(
+                        color = Color.White,
+                        RoundedCornerShape(16.dp)
+                    )
+                    .padding(vertical = 16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                Text(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .align(Alignment.Start)
+                        .padding(start = 24.dp),
+                    text = "Riwayat",
+                    color = colorResource(id = R.color.font),
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
         }
     }
 }

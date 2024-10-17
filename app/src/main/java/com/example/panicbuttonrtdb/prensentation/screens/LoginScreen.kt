@@ -1,5 +1,8 @@
 package com.example.panicbuttonrtdb.prensentation.screens
 
+import android.app.Activity
+import android.content.Context
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -11,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
@@ -37,16 +41,23 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.panicbuttonrtdb.R
+import com.example.panicbuttonrtdb.prensentation.components.OutlinedTextFieldPassword
 import com.example.panicbuttonrtdb.viewmodel.ViewModel
 import com.example.panicbuttonrtdb.viewmodel.ViewModelFactory
 
 @Composable
 fun LoginScreen(
+    context: Context,
     modifier: Modifier = Modifier,
     navController: NavHostController,
-    viewModel: ViewModel = viewModel(factory = ViewModelFactory(LocalContext.current))) {
+    viewModel: ViewModel = viewModel(factory = ViewModelFactory(LocalContext.current))
+) {
+
+    BackHandler {
+        (context as? Activity)?.finish()
+    }
     var houseNumber by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
+    var (password, setPassword) = remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }  // Indikator loading
     var errorMessage by remember { mutableStateOf("") }  // Pesan error
 
@@ -91,7 +102,8 @@ fun LoginScreen(
                     leadingIcon = {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_home),
-                            contentDescription = "ic home"
+                            contentDescription = "ic home",
+                            modifier = Modifier.size(24.dp)
                         )
                     },
                     colors = OutlinedTextFieldDefaults.colors(
@@ -104,30 +116,7 @@ fun LoginScreen(
                 )
                 Spacer(modifier = Modifier.height(12.dp))
 
-                OutlinedTextField(
-                    value = password,
-                    onValueChange = {password = it},
-                    label = { Text(text = "Password") },
-                    shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(
-                        imeAction = ImeAction.Next
-                    ),
-                    leadingIcon = {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_password),
-                            contentDescription = "ic password"
-                        )
-                    },
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = colorResource(id = R.color.font),
-                        focusedLabelColor = colorResource(id = R.color.font),
-                        focusedLeadingIconColor = colorResource(id = R.color.font),
-                        unfocusedLeadingIconColor = colorResource(id = R.color.defauld),
-                        cursorColor = colorResource(id = R.color.font)
-                    )
-                )
+                OutlinedTextFieldPassword(password, setPassword)
 
                 Spacer(modifier = Modifier.height(12.dp))
 
@@ -186,6 +175,5 @@ fun LoginScreen(
                 }
             }
         }
-
     }
 }
