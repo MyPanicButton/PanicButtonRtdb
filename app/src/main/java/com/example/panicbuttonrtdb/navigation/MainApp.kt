@@ -9,6 +9,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.panicbuttonrtdb.data.MonitorRecord
+import com.example.panicbuttonrtdb.prensentation.screens.DataRekapScreen
 import com.example.panicbuttonrtdb.prensentation.screens.DashboardAdminScreen
 import com.example.panicbuttonrtdb.prensentation.screens.DashboardUserScreen
 import com.example.panicbuttonrtdb.prensentation.screens.HistoryScreen
@@ -88,6 +89,13 @@ fun MainApp() {
             if (houseNumber != null) {
                 HistoryScreen(navController = navController, viewModel = viewModel, houseNumber = houseNumber)
             }
+        }
+
+        composable("data_rekap") {
+            DataRekapScreen(
+                viewModel = viewModel,
+                navController = navController
+            )
         }
     }
 }

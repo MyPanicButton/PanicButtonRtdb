@@ -129,7 +129,9 @@ fun DashboardAdminScreen(
             Spacer(modifier = Modifier.height(16.dp))
             ThreeMonitorItem(viewModel = viewModel)
             Button(
-                onClick = { },
+                onClick = {
+                    navController.navigate("data_rekap")
+                },
                 modifier
                     .padding(horizontal = 24.dp)
                     .fillMaxWidth(),
