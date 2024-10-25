@@ -17,21 +17,10 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             PanicButtonRtdbTheme {
-                Surface {
-                    MainApp()
-                }
+                MainApp()
             }
         }
     }
 }
 
-@Composable
-fun TestDb(modifier: Modifier = Modifier) {
-    // Write a message to the database
-    val database = FirebaseDatabase.getInstance("https://panicbuttonrtdb-default-rtdb.asia-southeast1.firebasedatabase.app/")
-    val myRef = database.getReference("message")
-
-    myRef.setValue("Hello, World!")
-
-}
 

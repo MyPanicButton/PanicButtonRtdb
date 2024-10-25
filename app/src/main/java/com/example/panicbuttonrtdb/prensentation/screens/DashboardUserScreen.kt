@@ -18,6 +18,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
@@ -25,6 +27,9 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -37,6 +42,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.panicbuttonrtdb.R
+import com.example.panicbuttonrtdb.prensentation.components.UserHistory
 import com.example.panicbuttonrtdb.prensentation.components.LogOutUser
 import com.example.panicbuttonrtdb.prensentation.components.ToggleSwitch
 import com.example.panicbuttonrtdb.viewmodel.ViewModel
@@ -49,8 +55,14 @@ fun DashboardUserScreen(
     navController: NavController,
     onLogout: () -> Unit
 ) {
+    val recordData by viewModel.monitorData.observeAsState(emptyList())
+
     BackHandler {
         (context as? Activity)?.finish()
+    }
+
+    LaunchedEffect(Unit){
+        viewModel.userHistory()
     }
 
     Box(
@@ -125,7 +137,7 @@ fun DashboardUserScreen(
                                         color = colorResource(id = R.color.font),
                                         shape = RoundedCornerShape(100.dp)
                                     )
-                                    .clickable {navController.navigate("user_profile")},
+                                    .clickable { navController.navigate("user_profile") },
                                 painter = painterResource(id = R.drawable.ic_empty_profile),
                                 contentDescription = "profile_image",
                                 contentScale = ContentScale.Crop
@@ -218,6 +230,13 @@ fun DashboardUserScreen(
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold
                 )
+                LazyColumn { // data akan muncul di sini
+                    items(recordData){ record->
+                        UserHistory(
+                            record = record
+                        )
+                    }
+                }
             }
         }
     }

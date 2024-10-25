@@ -25,6 +25,7 @@ class ViewModel(private val context: Context) : ViewModel() {
     private val database = FirebaseDatabase.getInstance()
     private val databaseRef = FirebaseDatabase.getInstance().getReference("/buzzer")
     private val userPreferences = UserPreferences(context)
+    private val monitorRef = database.getReference("monitor")
 
     var currentUserName by mutableStateOf("")
     var currentUserHouseNumber by mutableStateOf("")
@@ -260,8 +261,8 @@ class ViewModel(private val context: Context) : ViewModel() {
             })
     }
 
+    // fun mengambil 4 data dan menampilkan 3
     fun latestMonitorItem() {
-        val monitorRef = database.getReference("monitor")
 
         monitorRef.orderByKey().limitToLast(4) // take 4 data terbaru
             .addValueEventListener(object : ValueEventListener {
@@ -284,24 +285,22 @@ class ViewModel(private val context: Context) : ViewModel() {
             })
     }
 
+    // fun utk menampilkan detail rekap berdasarkan nomor rumah
     fun detailRekap(houseNumber: String) {
-        val detail = database.getReference("monitor")
 
-        detail.orderByChild("houseNumber").equalTo(houseNumber)
+        monitorRef.orderByChild("houseNumber").equalTo(houseNumber)
             .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     if (snapshot.exists()) {
                         val records = mutableListOf<MonitorRecord>()
                         for (recordSnapshot in snapshot.children) {
                             val record = recordSnapshot.getValue(MonitorRecord::class.java)
-                            Log.d("Firebase", "Record received: $record")
                             record?.let { records.add(it) }
                         }
 
                     _monitorData.value  =records
-                    Log.d("Firebase", "Detail REkap for houseNumber $houseNumber: $records")
                 } else {
-                        Log.d("Firebase", "Snapshot is empty for houseNumber: $houseNumber")
+                        Log.d("Firebase", "Tidak ada houseNumber: $houseNumber")
                     }
                 }
 
@@ -309,6 +308,29 @@ class ViewModel(private val context: Context) : ViewModel() {
                     Log.e("Firebase", "Failed to fetch detail rekap data", error.toException())
                 }
             })
+    }
+
+    //fun utk menampilkan riwayat user berdasarkan houseNumber
+    fun userHistory() {
+
+        monitorRef.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val records = mutableListOf<MonitorRecord>()
+                val userHistoryNumber = currentUserHouseNumber //ambil houseNumber dari user yang login
+
+                for (recordSnapshot in snapshot.children){
+                    val record = recordSnapshot.getValue(MonitorRecord::class.java)
+                    if (record?.houseNumber == userHistoryNumber) {
+                        records.add(record)
+                    }
+                }
+                _monitorData.value = records //hanya utk data yang sesuai dengan houseNumber
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("Firebase","Gagal mengambil data", error.toException())
+            }
+        })
     }
 
     fun getHistoryByHouseNumber(houseNumber: String): LiveData<List<MonitorRecord>> {
