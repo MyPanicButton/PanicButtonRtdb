@@ -31,7 +31,12 @@ class UserPreferences(context: Context) {
 
     // Fungsi untuk menghapus data pengguna saat logout
     fun clearUserInfo() {
-        prefs.edit().clear().apply()
+        prefs.edit()
+            .remove("is_logged_in")
+            .remove("user_name")
+            .remove("house_number")
+            .remove("isAdminLoggedIn")
+            .apply()
     }
 
     // Simpan status admin login

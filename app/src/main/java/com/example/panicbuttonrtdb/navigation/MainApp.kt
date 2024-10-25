@@ -1,5 +1,6 @@
 package com.example.panicbuttonrtdb.navigation
 
+import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -8,6 +9,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.panicbuttonrtdb.prensentation.components.OnBoarding
 import com.example.panicbuttonrtdb.prensentation.screens.UserProfileScreen
 import com.example.panicbuttonrtdb.prensentation.screens.DetailRekapScreen
 import com.example.panicbuttonrtdb.prensentation.screens.DataRekapScreen
@@ -24,25 +26,35 @@ import com.example.panicbuttonrtdb.viewmodel.ViewModelFactory
 fun MainApp() {
     val context = LocalContext.current // Dapatkan konteks
     val viewModel: ViewModel = viewModel(factory = ViewModelFactory(context)) // Inisialisasi ViewModel
+    val sharedPreferences = context.getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
+    val isOnboardingShown = sharedPreferences.getBoolean("OnBoardingShown", false)
 
     val navController = rememberNavController()
 
 
-    // Cek status login untuk menentukan layar awal
-    val startDestination =
-        if (viewModel.isAdminLoggedIn()){
-            "dashboard_admin"
-        } else if (viewModel.isUserLoggedIn()) {
-            "dashboard"
-        } else
-            "login"
-//        if (viewModel.isUserLoggedIn()) {
-//        "dashboard" // Jika pengguna sudah login
-//    } else {
-//        "login" // Jika pengguna belum login
-//    }
+    // Cek status login
+    val startDestination = when {
+        isOnboardingShown -> "onboarding"
+        viewModel.isAdminLoggedIn() -> "dashboard_admin"
+        viewModel.isUserLoggedIn() -> "dashboard"
+        else -> "login"
+    }
+
+//    val startDestination =
+//        if (viewModel.isAdminLoggedIn()){
+//            "dashboard_admin"
+//        } else if (viewModel.isUserLoggedIn()) {
+//            "dashboard"
+//        } else
+//            "login"
 
     NavHost(navController = navController, startDestination = startDestination) {
+        
+        //onBoarding
+        composable("onboarding") {
+            OnBoarding(navController = navController)
+        }
+        
         // Halaman Sign Up
         composable("signup") {
             SignUpScreen(navController = navController)
