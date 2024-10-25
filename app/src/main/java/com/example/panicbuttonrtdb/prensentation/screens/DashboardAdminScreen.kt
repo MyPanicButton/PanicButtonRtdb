@@ -17,11 +17,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -34,9 +34,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.panicbuttonrtdb.R
-import com.example.panicbuttonrtdb.data.MonitorRecord
-import com.example.panicbuttonrtdb.prensentation.components.MonitorScreen
-import com.example.panicbuttonrtdb.prensentation.components.ThreeMonitorItem
+import com.example.panicbuttonrtdb.prensentation.components.MonitorItem
+import com.example.panicbuttonrtdb.prensentation.components.LatestMonitorItem
+import com.example.panicbuttonrtdb.prensentation.components.LogOutAdmin
 import com.example.panicbuttonrtdb.viewmodel.ViewModel
 
 @Composable
@@ -45,15 +45,17 @@ fun DashboardAdminScreen(
     navController: NavController,
     viewModel: ViewModel,
     context: Context,
-    record: MonitorRecord,
     onLogout: () -> Unit
 ) {
+
+    val monitorRecord by viewModel.monitorData.observeAsState(emptyList())
+
     BackHandler { //jika tombol back ditekan maka akan menutup activity
         (context as? Activity)?. finish()
     }
 
     LaunchedEffect(Unit) {
-        viewModel.fetchDataRecordTakeThree()
+        viewModel.latestMonitorItem()
     }
 
     Column(
@@ -78,29 +80,20 @@ fun DashboardAdminScreen(
                 color = Color.White,
                 style = TextStyle(lineHeight = 40.sp)
             )
-            IconButton(
+            LogOutAdmin(
                 modifier = Modifier
                     .padding(end = 24.dp),
-                onClick = onLogout,
-                colors = IconButtonDefaults.iconButtonColors(
-                    containerColor = colorResource(id = R.color.background_button)
-                )
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_logout),
-                    contentDescription = "logout icon",
-                    tint = Color.White
-                )
-            }
+                onClick = { onLogout()
+                }
+            )
         }
         Spacer(modifier = Modifier.height(28.dp))
 
-        MonitorScreen(
-            monitorViewModel = viewModel,
-            onClick = {
-                navController.navigate("history/${record.houseNumber}")
-            }
+        MonitorItem(
+            viewModel = viewModel,
+            navController = navController
         )
+
         Spacer(modifier = Modifier.height(24.dp))
         Column(
             modifier
@@ -127,7 +120,12 @@ fun DashboardAdminScreen(
                 )
             }
             Spacer(modifier = Modifier.height(16.dp))
-            ThreeMonitorItem(viewModel = viewModel)
+
+            LatestMonitorItem(
+                viewModel = viewModel,
+                navController = navController
+            )
+
             Button(
                 onClick = {
                     navController.navigate("data_rekap")

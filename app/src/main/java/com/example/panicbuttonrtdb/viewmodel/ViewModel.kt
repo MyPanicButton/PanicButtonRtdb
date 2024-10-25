@@ -29,7 +29,6 @@ class ViewModel(private val context: Context) : ViewModel() {
     var currentUserName by mutableStateOf("")
     var currentUserHouseNumber by mutableStateOf("")
 
-
     private val _monitorData = MutableLiveData<List<MonitorRecord>>()
     val monitorData: LiveData<List<MonitorRecord>> get() = _monitorData
 
@@ -54,9 +53,9 @@ class ViewModel(private val context: Context) : ViewModel() {
         currentUserHouseNumber = userPreferences.getHouseNumber() ?: ""
     }
 
-    init {
-        fetchLatestRecord()
-    }
+//    init {
+//        fetchLatestRecord()
+//    }
 
     init {
         // Inisialisasi untuk mendapatkan status awal buzzer dari Firebase
@@ -232,7 +231,6 @@ class ViewModel(private val context: Context) : ViewModel() {
                     record?.let { records.add(it) }
                 }
                 _monitorData.value = records
-                Log.d("Firebase", "Monitor Record: $records")
             }
 
             override fun onCancelled(error: DatabaseError) {
@@ -241,7 +239,7 @@ class ViewModel(private val context: Context) : ViewModel() {
         })
     }
 
-    private fun fetchLatestRecord() {
+    fun fetchLatestRecord() {
         val latestData = database.getReference("monitor")
         latestData.orderByKey().limitToLast(1)
             .addValueEventListener(object : ValueEventListener {
@@ -262,7 +260,7 @@ class ViewModel(private val context: Context) : ViewModel() {
             })
     }
 
-    fun fetchDataRecordTakeThree() {
+    fun latestMonitorItem() {
         val monitorRef = database.getReference("monitor")
 
         monitorRef.orderByKey().limitToLast(4) // take 4 data terbaru
@@ -278,7 +276,6 @@ class ViewModel(private val context: Context) : ViewModel() {
                     }
 
                     _monitorData.value = records.take(3) // take 3 data
-                    Log.d("Firebase", "Monitor Record: $records")
                 }
 
                 override fun onCancelled(error: DatabaseError) {
@@ -287,7 +284,32 @@ class ViewModel(private val context: Context) : ViewModel() {
             })
     }
 
+    fun detailRekap(houseNumber: String) {
+        val detail = database.getReference("monitor")
 
+        detail.orderByChild("houseNumber").equalTo(houseNumber)
+            .addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    if (snapshot.exists()) {
+                        val records = mutableListOf<MonitorRecord>()
+                        for (recordSnapshot in snapshot.children) {
+                            val record = recordSnapshot.getValue(MonitorRecord::class.java)
+                            Log.d("Firebase", "Record received: $record")
+                            record?.let { records.add(it) }
+                        }
+
+                    _monitorData.value  =records
+                    Log.d("Firebase", "Detail REkap for houseNumber $houseNumber: $records")
+                } else {
+                        Log.d("Firebase", "Snapshot is empty for houseNumber: $houseNumber")
+                    }
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    Log.e("Firebase", "Failed to fetch detail rekap data", error.toException())
+                }
+            })
+    }
 
     fun getHistoryByHouseNumber(houseNumber: String): LiveData<List<MonitorRecord>> {
         val historyLiveData = MutableLiveData<List<MonitorRecord>>()

@@ -20,28 +20,14 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
@@ -49,8 +35,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.panicbuttonrtdb.R
-import com.example.panicbuttonrtdb.prensentation.components.PrioritySelection
+import com.example.panicbuttonrtdb.prensentation.components.LogOutUser
+import com.example.panicbuttonrtdb.prensentation.components.ToggleSwitch
 import com.example.panicbuttonrtdb.viewmodel.ViewModel
 
 @Composable
@@ -58,18 +46,12 @@ fun DashboardUserScreen(
     modifier: Modifier = Modifier,
     context: Context,
     viewModel: ViewModel,
+    navController: NavController,
     onLogout: () -> Unit
 ) {
     BackHandler {
         (context as? Activity)?.finish()
     }
-
-    val buzzerState by viewModel.buzzerState.observeAsState(initial = "Off")
-    var showDialog by remember { mutableStateOf(false) } // State untuk menampilkan dialog
-    var pendingToggleState by remember { mutableStateOf(false) } // State untuk menyimpan toggle sementara
-    var selectedPriority by remember { mutableStateOf("biasa") }
-
-    var message by remember { mutableStateOf("") }
 
     Box(
         modifier
@@ -143,7 +125,7 @@ fun DashboardUserScreen(
                                         color = colorResource(id = R.color.font),
                                         shape = RoundedCornerShape(100.dp)
                                     )
-                                    .clickable { },
+                                    .clickable {navController.navigate("user_profile")},
                                 painter = painterResource(id = R.drawable.ic_empty_profile),
                                 contentDescription = "profile_image",
                                 contentScale = ContentScale.Crop
@@ -172,18 +154,9 @@ fun DashboardUserScreen(
                             )
                         }
                     }
-                    IconButton(
-                        onClick = onLogout,
-                        colors = IconButtonDefaults.iconButtonColors(
-                            containerColor = colorResource(id = R.color.background_button)
-                        )
-                    ) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_logout),
-                            contentDescription = "logout icon",
-                            tint = colorResource(id = R.color.font)
-                        )
-                    }
+                    LogOutUser(
+                        onClick = onLogout
+                    )
                 }
             }
             Column(
@@ -221,107 +194,9 @@ fun DashboardUserScreen(
                     text = "Gunakan tombol hanya untuk keadaan darurat atau gangguan lainnya",
                     color = Color.White)
             }
-            // Tampilkan toggle untuk mengontrol buzzer
-            Switch(
-                checked = buzzerState == "On",
-                onCheckedChange = { isChecked ->
-                    if (isChecked) {
-                        // Jika toggle diaktifkan, tampilkan dialog konfirmasi
-                        pendingToggleState = true
-                        showDialog = true
-                    } else {
-                        // Jika toggle dimatikan, langsung matikan tanpa konfirmasi
-                        viewModel.setBuzzerState("Off")
-                    }
-                },
-                thumbContent = {
-                    if (buzzerState == "On") {
-                        Icon(
-                            painter = painterResource(id = R.drawable.onmode),
-                            contentDescription = "on mode",
-                            modifier = Modifier
-                                .padding(5.dp),
-                            tint = Color.White
-                        )
-                    }else {
-                        Icon(
-                            painter = painterResource(id = R.drawable.offmode),
-                            contentDescription = "off mode",
-                            modifier = Modifier
-                                .padding(5.dp)
-                                .size(24.dp),
-                            tint = Color.White
-                        )
-                    }
-                },
-                colors = SwitchDefaults.colors(
-                    checkedTrackColor = colorResource(id = R.color.pudar),
-                    uncheckedTrackColor = colorResource(id = R.color.merah_pudar),
-                    uncheckedBorderColor = colorResource(id = R.color.primary),
-                    checkedThumbColor = colorResource(id = R.color.biru),
-                    uncheckedThumbColor = colorResource(id = R.color.primary),
-                    checkedBorderColor = colorResource(id = R.color.biru)
-                ),
-                modifier = Modifier
-                    .scale(1.8f)
-                    .padding(20.dp),
-            )
-            // Logic untuk otomatis mematikan toggle setelah 10 detik
-            if (buzzerState == "On") {
-                LaunchedEffect(key1 = buzzerState) {
-                    kotlinx.coroutines.delay(20000) // Tunggu selama 10 detik
-                    viewModel.setBuzzerState("Off")
-                }
-            }
-            // Dialog konfirmasi
-            if (showDialog) {
-                AlertDialog(
-                    onDismissRequest = { showDialog = false },
-                    title = { Text(text = "Konfirmasi") },
-                    text = {
-                        Column {
-                            Text(text = "Apakah Anda yakin ingin mengaktifkan buzzer?")
-                            Spacer(modifier = Modifier.height(8.dp))
-                            OutlinedTextField(
-                                value = message,
-                                onValueChange = { message = it },
-                                label = { Text("Tambahkan Pesan") },
-                                placeholder = { Text("Pesan opsional...") }
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            PrioritySelection(
-                                selectedPriority = selectedPriority,
-                                onPrioritySelected = { selectedPriority = it }
-                            )
-                        }
-                    },
-                    confirmButton = {
-                        Button(
-                            onClick = {
-                                // Jika pengguna mengonfirmasi, aktifkan buzzer
-                                viewModel.setBuzzerState("On")
-                                viewModel.saveMonitorData(
-                                    message = message,
-                                    priority = selectedPriority
-                                )
-                                showDialog = false
-                            }
-                        ) {
-                            Text("Ya")
-                        }
-                    },
-                    dismissButton = {
-                        Button(
-                            onClick = {
-                                // Jika pengguna membatalkan, sembunyikan dialog dan reset toggle
-                                showDialog = false
-                            }
-                        ) {
-                            Text("Tidak")
-                        }
-                    }
-                )
-            }
+
+            ToggleSwitch(viewModel)
+
             Column(
                 modifier
                     .fillMaxSize()

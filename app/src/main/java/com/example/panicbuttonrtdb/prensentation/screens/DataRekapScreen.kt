@@ -57,16 +57,18 @@ fun DataRekapScreen(
 ) {
     val monitor by viewModel.monitorData.observeAsState(emptyList())
     var searchQuery by remember { mutableStateOf("") }
-    var selectedPrioritas by remember { mutableStateOf("Prioritas") }
+    var selectedPrioritas by remember { mutableStateOf("Prioritas") } // default pada filter
     val dateFormat = SimpleDateFormat("yyyy-MM-dd 'waktu' HH:mm", Locale.getDefault())
     var selectedWaktu by remember { mutableStateOf("Waktu") }
     val filterData = monitor
-        .filter { it.houseNumber.contains(searchQuery, ignoreCase = true) }
-        .filter { selectedPrioritas == "Prioritas" || it.priority == selectedPrioritas }
+        .filter { it.houseNumber.contains(searchQuery, ignoreCase = true) } // filter berdasarkan houseNumber dan searchQuery
+        .filter { selectedPrioritas == "Prioritas" || it.priority == selectedPrioritas } //filter berdasarkan prioritas yang dipilih
         .sortedBy {
             if (selectedWaktu == "Lama") {
+                //urutkan dari yang paling lama
                 dateFormat.parse(it.time)?.time ?: 0L
             } else {
+                //urutkan dari yang paling baru
                 -(dateFormat.parse(it.time)?.time ?: 0L)
             }
         }

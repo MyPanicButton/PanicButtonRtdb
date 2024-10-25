@@ -8,10 +8,12 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.panicbuttonrtdb.data.MonitorRecord
+import com.example.panicbuttonrtdb.prensentation.screens.UserProfileScreen
+import com.example.panicbuttonrtdb.prensentation.screens.DetailRekapScreen
 import com.example.panicbuttonrtdb.prensentation.screens.DataRekapScreen
 import com.example.panicbuttonrtdb.prensentation.screens.DashboardAdminScreen
 import com.example.panicbuttonrtdb.prensentation.screens.DashboardUserScreen
+import com.example.panicbuttonrtdb.prensentation.screens.HelpScreen
 import com.example.panicbuttonrtdb.prensentation.screens.HistoryScreen
 import com.example.panicbuttonrtdb.prensentation.screens.LoginScreen
 import com.example.panicbuttonrtdb.prensentation.screens.SignUpScreen
@@ -60,6 +62,7 @@ fun MainApp() {
             DashboardUserScreen(
                 context = context,
                 viewModel = viewModel,
+                navController = navController,
                 onLogout = {
                     viewModel.logout() // Panggil fungsi logout dari ViewModel
                     navController.navigate("login") // Navigasi kembali ke layar login
@@ -71,7 +74,6 @@ fun MainApp() {
             DashboardAdminScreen(
                 context = context,
                 navController = navController,
-                record = MonitorRecord(),
                 viewModel = viewModel,
                 onLogout = {
                     viewModel.adminLogout()
@@ -95,6 +97,25 @@ fun MainApp() {
             DataRekapScreen(
                 viewModel = viewModel,
                 navController = navController
+            )
+        }
+        composable("detail_rekap/{houseNumber}") {backStackEntry ->
+            val nomorRumah = backStackEntry.arguments?.getString("houseNumber")
+            DetailRekapScreen(
+                houseNumber = nomorRumah ?:"",
+                viewModel = viewModel,
+                navController = navController
+            )
+        }
+        composable("user_profile") {
+            UserProfileScreen(
+                context = context,
+                navController = navController
+            )
+        }
+        composable("help") {
+            HelpScreen(
+                navController =navController
             )
         }
     }

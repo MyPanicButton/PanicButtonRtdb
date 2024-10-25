@@ -31,7 +31,7 @@ fun FilterPrioritas(
 ) {
     var expanded by remember { mutableStateOf(false) }
     var selectedOptionText by remember { mutableStateOf("Prioritas") }
-    val options = listOf("darurat", "penting", "biasa")
+    val options = listOf("Darurat", "Penting", "Biasa")
 
 
     ExposedDropdownMenuBox(
@@ -102,7 +102,7 @@ fun FilterWaktu(
     onSelected: (String) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
-    var selectedOptionText by remember { mutableStateOf("Waktu") }
+    var selectedOptionText by remember { mutableStateOf("Waktu") } //default filter
     val options = listOf("Terbaru", "Lama")
 
 
