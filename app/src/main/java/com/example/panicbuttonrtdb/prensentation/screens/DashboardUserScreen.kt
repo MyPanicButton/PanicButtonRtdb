@@ -30,6 +30,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -41,11 +44,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import coil.compose.rememberImagePainter
 import com.example.panicbuttonrtdb.R
+import com.example.panicbuttonrtdb.data.User
 import com.example.panicbuttonrtdb.prensentation.components.UserHistory
 import com.example.panicbuttonrtdb.prensentation.components.LogOutUser
 import com.example.panicbuttonrtdb.prensentation.components.ToggleSwitch
 import com.example.panicbuttonrtdb.viewmodel.ViewModel
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 
 @Composable
 fun DashboardUserScreen(
@@ -55,10 +64,32 @@ fun DashboardUserScreen(
     navController: NavController,
     onLogout: () -> Unit
 ) {
+    val sharedPref = context.getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
+    val houseNumber = sharedPref.getString("house_number", "") ?: ""
+    val databaseRef = FirebaseDatabase.getInstance().getReference("users")
     val recordData by viewModel.monitorData.observeAsState(emptyList())
+    val emptyProfile = R.drawable.ic_empty_profile
+    var user by remember {mutableStateOf<User?>(null)}
+    val profileImageUrl = if (user?.imageProfile.isNullOrEmpty()) emptyProfile else user?.imageProfile
 
     BackHandler {
         (context as? Activity)?.finish()
+    }
+
+    LaunchedEffect(houseNumber) {
+        databaseRef.orderByChild("houseNumber").equalTo(houseNumber).addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if (snapshot.exists()) {
+                    val matchedUser = snapshot.children
+                        .mapNotNull { it.getValue(User::class.java) }
+                        .firstOrNull { it.houseNumber == houseNumber }
+
+                    if (matchedUser != null) { user = matchedUser }
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) { }
+        })
     }
 
     LaunchedEffect(Unit){
@@ -138,7 +169,7 @@ fun DashboardUserScreen(
                                         shape = RoundedCornerShape(100.dp)
                                     )
                                     .clickable { navController.navigate("user_profile") },
-                                painter = painterResource(id = R.drawable.ic_empty_profile),
+                                painter = rememberImagePainter(data = profileImageUrl),
                                 contentDescription = "profile_image",
                                 contentScale = ContentScale.Crop
                             )

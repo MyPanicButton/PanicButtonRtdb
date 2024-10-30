@@ -1,7 +1,9 @@
 package com.example.panicbuttonrtdb.viewmodel
 
 import android.content.Context
+import android.net.Uri
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -16,6 +18,7 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -23,9 +26,13 @@ import kotlinx.coroutines.launch
 class ViewModel(private val context: Context) : ViewModel() {
 
     private val database = FirebaseDatabase.getInstance()
+    private val storage = FirebaseStorage.getInstance().reference
     private val databaseRef = FirebaseDatabase.getInstance().getReference("/buzzer")
     private val userPreferences = UserPreferences(context)
     private val monitorRef = database.getReference("monitor")
+
+    private val _userData = MutableLiveData<List<User>>()
+    val userData: LiveData<List<User>> = _userData
 
     var currentUserName by mutableStateOf("")
     var currentUserHouseNumber by mutableStateOf("")
@@ -181,7 +188,7 @@ class ViewModel(private val context: Context) : ViewModel() {
     }
 
     // Fungsi untuk menyimpan data ke path /monitor di Firebase
-    fun saveMonitorData(message: String, priority: String) {
+    fun saveMonitorData(message: String, priority: String, status: String) {
         val monitorRef = database.getReference("monitor")
 
         val data = mapOf(
@@ -189,6 +196,7 @@ class ViewModel(private val context: Context) : ViewModel() {
             "houseNumber" to currentUserHouseNumber,
             "message" to message,
             "priority" to priority,
+            "status" to status,
             "time" to getCurrentTimestampFormatted() // Waktu saat toggle diaktifkan
         )
 
@@ -318,7 +326,7 @@ class ViewModel(private val context: Context) : ViewModel() {
                 val records = mutableListOf<MonitorRecord>()
                 val userHistoryNumber = currentUserHouseNumber //ambil houseNumber dari user yang login
 
-                for (recordSnapshot in snapshot.children){
+                for (recordSnapshot in snapshot.children.reversed()){ //reversed utk mengurutkan data dari yang terbaru
                     val record = recordSnapshot.getValue(MonitorRecord::class.java)
                     if (record?.houseNumber == userHistoryNumber) {
                         records.add(record)
@@ -331,6 +339,52 @@ class ViewModel(private val context: Context) : ViewModel() {
                 Log.e("Firebase","Gagal mengambil data", error.toException())
             }
         })
+    }
+
+    //fun upload foto ke storage
+    fun uploadImage(imageUri: Uri, houseNumber: String, imageType: String, context: Context) {
+        val imageRef = storage.child("${imageType}/$houseNumber.jpg")
+
+        imageRef.putFile(imageUri)
+            .addOnSuccessListener {
+                Log.d("UserProfileScreen", "Image uploaded successfully: $imageUri")
+                imageRef.downloadUrl.addOnSuccessListener { uri ->
+                    Log.d("UserProfileScreen", "Image download URL: $uri")
+                    saveImagePathToDatabase(uri.toString(), houseNumber, imageType, context)
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.e("UserProfileScreen", "Image upload failed: ${exception.message}")
+                Toast.makeText(context, "Upload Failed: ${exception.message}", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    //funtion utk simpan path foto ke database
+    private fun saveImagePathToDatabase(imageUri: String, houseNumber: String, imageType: String, context: Context) {
+        val usersRef = database.getReference("users")
+
+        usersRef.orderByChild("houseNumber").equalTo(houseNumber)
+            .addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    if (snapshot.exists()) {
+                        for (userSnapshot in snapshot.children) {
+                            userSnapshot.ref.child(imageType).setValue(imageUri)
+                                .addOnSuccessListener {
+                                    Toast.makeText(context, "$imageType berhasil di perbaharui", Toast.LENGTH_SHORT).show()
+                                }
+                                .addOnFailureListener { exception ->
+                                    Toast.makeText(context, "Gagal menyimpan URL gambar: ${exception.message}", Toast.LENGTH_SHORT).show()
+                                }
+                        }
+                    } else {
+                        Toast.makeText(context, "User dengan nomor rumah $houseNumber tidak ditemukan", Toast.LENGTH_SHORT).show()
+                    }
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    Toast.makeText(context, "Error: ${error.message}", Toast.LENGTH_SHORT).show()
+                }
+            })
     }
 
     fun getHistoryByHouseNumber(houseNumber: String): LiveData<List<MonitorRecord>> {

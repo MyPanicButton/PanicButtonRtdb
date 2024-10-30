@@ -35,7 +35,7 @@ fun DataRekapItem(
 ) {
     Card(
         modifier
-            .clickable { navController.navigate("detail_log_screen/${log.houseNumber}") }
+            .clickable { navController.navigate("detail_rekap/${log.houseNumber}") }
             .wrapContentHeight()
             .fillMaxWidth(),
         colors =  CardDefaults.cardColors(

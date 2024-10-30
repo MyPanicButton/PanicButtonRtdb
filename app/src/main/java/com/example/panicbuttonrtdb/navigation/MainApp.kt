@@ -122,7 +122,8 @@ fun MainApp() {
         composable("user_profile") {
             UserProfileScreen(
                 context = context,
-                navController = navController
+                navController = navController,
+                viewModel = viewModel
             )
         }
         composable("help") {

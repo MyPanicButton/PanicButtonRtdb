@@ -176,7 +176,8 @@ fun ToggleSwitch(
                             viewModel.setBuzzerState("on")
                             viewModel.saveMonitorData(
                                 message = message,
-                                priority = selectedPriority
+                                priority = selectedPriority,
+                                status = "Proses"
                             )
                             showDialog = false
                         }

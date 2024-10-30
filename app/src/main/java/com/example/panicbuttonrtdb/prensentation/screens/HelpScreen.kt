@@ -53,7 +53,7 @@ fun HelpScreen(
     var isClickedTombol by remember { mutableStateOf(false) }
     var isClickedHubungi by remember{ mutableStateOf(false) }
 
-    val annotatedString = buildAnnotatedString {
+    val stringMasalah = buildAnnotatedString {
         append("Apakah Anda mengalami kesulitan yang tidak dapat diselesaikan? Kami di sini untuk membantu!\n")
         append("Mungkin beberapa masalah tidak bisa langsung diatasi oleh aplikasi kami, tetapi Anda masih memiliki beberapa pilihan:\n\n")
         append("Langkah-langkah yang bisa Anda coba:\n")
@@ -61,7 +61,7 @@ fun HelpScreen(
         append("2. Restart Aplikasi: Cobalah menutup aplikasi dan membukanya kembali. Ini bisa membantu jika ada bug sementara yang mempengaruhi kinerja aplikasi.\n\n")
         append("3. Update Aplikasi: Pastikan Anda menggunakan versi terbaru dari aplikasi Panic Button. Cek di Play Store atau App Store untuk pembaruan.\n\n")
     }
-    val annotatedString2 = buildAnnotatedString {
+    val stringTombol = buildAnnotatedString {
         append("Mengalami masalah saat mencoba mengaktifkan tombol Panic Button? Berikut adalah beberapa solusi cepat untuk mengatasi masalah tersebut\n\n")
         append("Langkah-langkah Untuk Mengatasi Masalah:\n")
         append("1. Pastikan Izin Aplikasi Telah Diberikan: Aplikasi membutuhkan izin tertentu seperti akses lokasi atau izin lainnya untuk berfungsi dengan baik. Pastikan Anda telah memberikan izin yang diminta melalui pengaturan aplikasi.\n\n")
@@ -269,7 +269,7 @@ fun HelpScreen(
             },
             text = {
                 Text(
-                    text = annotatedString,
+                    text = stringMasalah,
                     fontSize = 12.sp
                 )
             }
@@ -300,7 +300,7 @@ fun HelpScreen(
             },
             text = {
                 Text(
-                    text = annotatedString2,
+                    text = stringTombol,
                     fontSize = 12.sp
                 )
             }

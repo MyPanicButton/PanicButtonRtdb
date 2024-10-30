@@ -1,6 +1,9 @@
 package com.example.panicbuttonrtdb.prensentation.screens
 
 import android.content.Context
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -30,6 +33,11 @@ import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -42,22 +50,64 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import coil.compose.rememberImagePainter
 import com.example.panicbuttonrtdb.R
+import com.example.panicbuttonrtdb.data.User
 import com.example.panicbuttonrtdb.prensentation.components.KeteranganUser
 import com.example.panicbuttonrtdb.notification.openNotificationSettings
+import com.example.panicbuttonrtdb.viewmodel.ViewModel
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 
 @Composable
 fun UserProfileScreen(
     modifier: Modifier = Modifier,
     context: Context,
-    navController: NavController
+    navController: NavController,
+    viewModel: ViewModel
 ) {
 
     val sharedPref = context.getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
+    val houseNumber = sharedPref.getString("house_number", "") ?: ""
+    val databaseRef = FirebaseDatabase.getInstance().getReference("users")
     val userName = sharedPref.getString("user_name", "nama user tidak ditemukan")
     val nomorRumah = sharedPref.getString("house_number", "norum tidak ada")
+    var user by remember {mutableStateOf<User?>(null)}
+    val emptyProfile = R.drawable.ic_empty_profile
+    val emptyCover = R.drawable.empty_image
+    val profileImageUrl = if (user?.imageProfile.isNullOrEmpty()) emptyProfile else user?.imageProfile // jika null maka panggil emptyProfile jika ada maka panggil imageProfile di User
+    val coverImageUrl = if (user?.coverImage.isNullOrEmpty()) emptyCover else user?.coverImage // jika null maka panggil emptyCover jika ada maka panggil coverImage di User
+    val profileLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        uri?.let {
+            viewModel.uploadImage(it, houseNumber, "profileImage", context)
+        }
+    }
+    val coverLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        uri?.let {
+            viewModel.uploadImage(it, houseNumber, "coverImage", context)
+        }
+    }
+
+    LaunchedEffect(houseNumber) {
+        databaseRef.orderByChild("houseNumber").equalTo(houseNumber).addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if (snapshot.exists()) {
+                    val matchedUser = snapshot.children // matchedUser utk memfilter user
+                        .mapNotNull { it.getValue(User::class.java) }
+                        .firstOrNull { it.houseNumber == houseNumber }
+
+                    if (matchedUser != null) { user = matchedUser }
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) { }
+        })
+    }
 
     Box(
         modifier
@@ -73,7 +123,7 @@ fun UserProfileScreen(
             Image(
                 modifier = Modifier
                     .fillMaxWidth(),
-                painter = painterResource(id = R.drawable.empty_image),
+                painter = rememberImagePainter(data = coverImageUrl),
                 contentDescription = "cover_image",
                 contentScale = ContentScale.Crop
             )
@@ -106,7 +156,7 @@ fun UserProfileScreen(
                     modifier = Modifier
                         .size(36.dp)
                         .clip(CircleShape),
-                    onClick = { },
+                    onClick = { coverLauncher.launch("image/*")},
                     colors = IconButtonDefaults.iconButtonColors(
                         containerColor = colorResource(id = R.color.background_button),
                         contentColor = colorResource(id = R.color.primary)
@@ -182,14 +232,14 @@ fun UserProfileScreen(
                             color = colorResource(id = R.color.primary),
                             shape = RoundedCornerShape(100.dp)
                         ),
-                    painter = painterResource(id = R.drawable.ic_empty_profile),
+                    painter = rememberImagePainter(data = profileImageUrl),
                     contentDescription = "ic_empty_profile",
                     contentScale = ContentScale.Crop
                 )
                 Icon(
                     modifier = Modifier
                         .size(24.dp)
-                        .clickable { },
+                        .clickable { profileLauncher.launch("image/*") },
                     painter = painterResource(id = R.drawable.ic_edit),
                     contentDescription = "ic_edit",
                     tint = colorResource(id = R.color.primary)
@@ -299,6 +349,7 @@ fun UserProfileScreen(
 private fun Liat() {
     UserProfileScreen(
         context = LocalContext.current,
-        navController = rememberNavController()
+        navController = rememberNavController(),
+        viewModel = viewModel()
     )
 }

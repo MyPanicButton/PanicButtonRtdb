@@ -1,6 +1,5 @@
 package com.example.panicbuttonrtdb.prensentation.screens
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -32,6 +31,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -44,9 +46,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import coil.compose.rememberImagePainter
+import coil.request.CachePolicy
 import com.example.panicbuttonrtdb.R
+import com.example.panicbuttonrtdb.data.User
 import com.example.panicbuttonrtdb.prensentation.components.DetailRekapItem
 import com.example.panicbuttonrtdb.viewmodel.ViewModel
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 
 @Composable
 fun DetailRekapScreen(
@@ -55,13 +64,33 @@ fun DetailRekapScreen(
     navController : NavController,
     houseNumber: String
 ) {
+    val databaseRef = FirebaseDatabase.getInstance().getReference("users")
+    var user by remember { mutableStateOf<User?>(null) }
+    val emptyProfile = R.drawable.ic_empty_profile
+    val emptyCover = R.drawable.empty_image
     val record by viewModel.monitorData.observeAsState(emptyList())
-    val historyList by viewModel.getHistoryByHouseNumber(houseNumber).observeAsState(emptyList())
     val unit = record.filter { it.houseNumber == houseNumber }
+    val profileImageUrl = if (user?.imageProfile.isNullOrEmpty()) emptyProfile else user?.imageProfile
+    val coverImageUrl = if (user?.coverImage.isNullOrEmpty()) emptyCover else user?.coverImage
     val scroll = rememberScrollState()
 
     LaunchedEffect(houseNumber) {
-        Log.d("DetailRekapItem", "Fetching detail for houseNumber: $houseNumber")
+        databaseRef.orderByChild("houseNumber").equalTo(houseNumber).addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if (snapshot.exists()) {
+                    val matchedUser = snapshot.children
+                        .mapNotNull { it.getValue(User::class.java) }
+                        .firstOrNull { it.houseNumber == houseNumber }
+
+                    if (matchedUser != null) { user = matchedUser }
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) { }
+        })
+    }
+
+    LaunchedEffect(houseNumber) {
         viewModel.detailRekap(houseNumber)
     }
 
@@ -79,7 +108,15 @@ fun DetailRekapScreen(
             Image(
                 modifier = Modifier
                     .fillMaxWidth(),
-                painter = painterResource(id = R.drawable.empty_image),
+                painter = rememberImagePainter(
+                    data = coverImageUrl,
+                    builder = {
+                        crossfade(true)
+                        diskCachePolicy(CachePolicy.DISABLED)
+                        memoryCachePolicy(CachePolicy.DISABLED)
+                        build()
+                    }
+                ),
                 contentDescription = "cover_image",
                 contentScale = ContentScale.Crop
             )
@@ -170,7 +207,7 @@ fun DetailRekapScreen(
                             color = colorResource(id = R.color.primary),
                             shape = RoundedCornerShape(100.dp)
                         ),
-                    painter = painterResource(id = R.drawable.ic_empty_profile),
+                    painter = rememberImagePainter(data = profileImageUrl),
                     contentDescription = "ic_empty_profile",
                     contentScale = ContentScale.Crop
                 )
