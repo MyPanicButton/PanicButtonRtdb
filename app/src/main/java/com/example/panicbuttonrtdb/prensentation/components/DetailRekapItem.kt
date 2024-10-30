@@ -1,5 +1,6 @@
 package com.example.panicbuttonrtdb.prensentation.components
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -36,12 +37,13 @@ fun DetailRekapItem(
     record: MonitorRecord,
     modifier: Modifier = Modifier,
     viewModel: ViewModel,
-    houseNumber: String = record.houseNumber
+    recorId: String //utk menerima key unik
+
 ) {
 
 
     LaunchedEffect(record) {
-        viewModel.detailRekap(houseNumber)
+        viewModel.detailRekap(record.houseNumber)
     }
 
     Card(
@@ -109,6 +111,15 @@ fun DetailRekapItem(
                 style = TextStyle(lineHeight = 20.sp),
                 overflow = TextOverflow.Ellipsis
             )
+            if (record.id.isNotEmpty()) {
+                ConfirmationButton(
+                    viewModel = viewModel,
+                    record = record,
+                    onConfirm = { viewModel.updateStatus(record.id) }
+                )
+            } else {
+                Log.e("DetailRekapItem", "Record ID is empty, cannot update status.")
+            }
         }
     }
 }

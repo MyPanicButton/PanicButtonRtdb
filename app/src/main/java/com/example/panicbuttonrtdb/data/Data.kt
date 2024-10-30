@@ -22,6 +22,7 @@ data class User (
 }
 
 data class MonitorRecord(
+    val id: String = "",
     val name: String = "",
     val houseNumber: String = "",
     val message: String = "",

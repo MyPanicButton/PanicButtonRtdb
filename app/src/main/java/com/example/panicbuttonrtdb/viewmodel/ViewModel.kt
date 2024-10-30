@@ -293,23 +293,16 @@ class ViewModel(private val context: Context) : ViewModel() {
             })
     }
 
-    // fun utk menampilkan detail rekap berdasarkan nomor rumah
+    // Fungsi untuk menampilkan detail rekap berdasarkan nomor rumah
     fun detailRekap(houseNumber: String) {
-
         monitorRef.orderByChild("houseNumber").equalTo(houseNumber)
             .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
-                    if (snapshot.exists()) {
-                        val records = mutableListOf<MonitorRecord>()
-                        for (recordSnapshot in snapshot.children) {
-                            val record = recordSnapshot.getValue(MonitorRecord::class.java)
-                            record?.let { records.add(it) }
-                        }
-
-                    _monitorData.value  =records
-                } else {
-                        Log.d("Firebase", "Tidak ada houseNumber: $houseNumber")
+                    val records = snapshot.children.reversed().mapNotNull { recordSnapshot -> //take data
+                        recordSnapshot.getValue(MonitorRecord::class.java)?.copy(id = recordSnapshot.key ?: "") //menetapkan id = key
                     }
+                    (records.isNotEmpty()) //check apakah records kosong
+                    _monitorData.value = records //jika records tdk kosong update _monitorData
                 }
 
                 override fun onCancelled(error: DatabaseError) {
@@ -320,7 +313,6 @@ class ViewModel(private val context: Context) : ViewModel() {
 
     //fun utk menampilkan riwayat user berdasarkan houseNumber
     fun userHistory() {
-
         monitorRef.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val records = mutableListOf<MonitorRecord>()
@@ -347,15 +339,9 @@ class ViewModel(private val context: Context) : ViewModel() {
 
         imageRef.putFile(imageUri)
             .addOnSuccessListener {
-                Log.d("UserProfileScreen", "Image uploaded successfully: $imageUri")
                 imageRef.downloadUrl.addOnSuccessListener { uri ->
-                    Log.d("UserProfileScreen", "Image download URL: $uri")
                     saveImagePathToDatabase(uri.toString(), houseNumber, imageType, context)
                 }
-            }
-            .addOnFailureListener { exception ->
-                Log.e("UserProfileScreen", "Image upload failed: ${exception.message}")
-                Toast.makeText(context, "Upload Failed: ${exception.message}", Toast.LENGTH_SHORT).show()
             }
     }
 
@@ -372,12 +358,7 @@ class ViewModel(private val context: Context) : ViewModel() {
                                 .addOnSuccessListener {
                                     Toast.makeText(context, "$imageType berhasil di perbaharui", Toast.LENGTH_SHORT).show()
                                 }
-                                .addOnFailureListener { exception ->
-                                    Toast.makeText(context, "Gagal menyimpan URL gambar: ${exception.message}", Toast.LENGTH_SHORT).show()
-                                }
                         }
-                    } else {
-                        Toast.makeText(context, "User dengan nomor rumah $houseNumber tidak ditemukan", Toast.LENGTH_SHORT).show()
                     }
                 }
 
@@ -385,6 +366,12 @@ class ViewModel(private val context: Context) : ViewModel() {
                     Toast.makeText(context, "Error: ${error.message}", Toast.LENGTH_SHORT).show()
                 }
             })
+    }
+
+    //fun update status pesan
+    fun updateStatus(recordId: String) {
+        monitorRef.child(recordId).child("status").setValue("Selesai") //update data di status
+
     }
 
     fun getHistoryByHouseNumber(houseNumber: String): LiveData<List<MonitorRecord>> {
