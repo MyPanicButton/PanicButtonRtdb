@@ -119,13 +119,12 @@ fun DashboardAdminScreen(
                     color = colorResource(id = R.color.primary)
                 )
             }
-            Spacer(modifier = Modifier.height(16.dp))
-
+            Spacer(modifier = Modifier.height(8.dp))
             LatestMonitorItem(
                 viewModel = viewModel,
                 navController = navController
             )
-
+            Spacer(modifier = Modifier.height(16.dp))
             Button(
                 onClick = {
                     navController.navigate("data_rekap")

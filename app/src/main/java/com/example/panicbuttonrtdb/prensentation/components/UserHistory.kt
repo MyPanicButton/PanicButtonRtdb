@@ -37,7 +37,9 @@ fun UserHistory(
             .wrapContentHeight()
             .fillMaxWidth()
             .padding(bottom = 8.dp),
-        colors = CardDefaults.cardColors(
+        colors = if (record.status == "Selesai") CardDefaults.cardColors(
+            containerColor = colorResource(id = R.color.background_card)
+        ) else CardDefaults.cardColors(
             containerColor = Color.White
         ),
         elevation = CardDefaults.cardElevation(4.dp)

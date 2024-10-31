@@ -74,9 +74,16 @@ fun MonitorItem(
                 .padding(start = 24.dp, end = 24.dp, top = 28.dp, bottom = 20.dp),
             contentAlignment = Alignment.Center
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.ic_process),
+            if (latestRecord.status == "Selesai") Image( //jika status pada latestRecord Selesai maka Image ic_done akan muncul
+                painter = painterResource(id = R.drawable.ic_done),
                 contentDescription = "ic_done",
+                modifier
+                    .align(Alignment.TopEnd)
+                    .size(32.dp)
+            )
+            else Image( //selain Selesai tampilkan ic_proses
+                painter = painterResource(id = R.drawable.ic_process),
+                contentDescription = "ic_process",
                 modifier
                     .align(Alignment.TopEnd)
                     .size(32.dp)

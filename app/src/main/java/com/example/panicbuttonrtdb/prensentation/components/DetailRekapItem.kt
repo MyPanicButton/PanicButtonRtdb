@@ -31,19 +31,22 @@ import androidx.compose.ui.unit.sp
 import com.example.panicbuttonrtdb.R
 import com.example.panicbuttonrtdb.data.MonitorRecord
 import com.example.panicbuttonrtdb.viewmodel.ViewModel
+import kotlinx.coroutines.delay
 
 @Composable
 fun DetailRekapItem(
-    record: MonitorRecord,
     modifier: Modifier = Modifier,
-    viewModel: ViewModel,
-    recorId: String //utk menerima key unik
+    record: MonitorRecord,
+    viewModel: ViewModel
 
 ) {
 
 
     LaunchedEffect(record) {
-        viewModel.detailRekap(record.houseNumber)
+        while (true) {
+            viewModel.detailRekap(record.houseNumber)
+            delay(5000)
+        }
     }
 
     Card(
@@ -51,7 +54,9 @@ fun DetailRekapItem(
             .wrapContentHeight()
             .fillMaxWidth()
             .padding(bottom = 4.dp),
-        colors = CardDefaults.cardColors(
+        colors = if (record.status == "Selesai") CardDefaults.cardColors(
+            containerColor = colorResource(id = R.color.background_card)
+        ) else CardDefaults.cardColors(
             containerColor = Color.White
         ),
         elevation = CardDefaults.cardElevation(4.dp)

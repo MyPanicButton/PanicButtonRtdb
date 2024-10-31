@@ -1,20 +1,20 @@
 package com.example.panicbuttonrtdb
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.material3.Surface
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import com.example.panicbuttonrtdb.navigation.MainApp
+import com.example.panicbuttonrtdb.notification.createNotificationChannel
 import com.example.panicbuttonrtdb.ui.theme.PanicButtonRtdbTheme
-import com.google.firebase.database.FirebaseDatabase
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        Log.d("MainActivity", "Creating notification channel")
+        createNotificationChannel(this)
         setContent {
             PanicButtonRtdbTheme {
                 MainApp()

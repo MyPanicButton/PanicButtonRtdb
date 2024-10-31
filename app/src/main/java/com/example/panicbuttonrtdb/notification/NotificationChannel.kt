@@ -9,6 +9,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.provider.Settings
+import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -19,13 +20,14 @@ fun createNotificationChannel(context: Context) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
         val name = "Default Channel"
         val descriptionText = "Channel untuk notifikasi default"
-        val importance = NotificationManager.IMPORTANCE_DEFAULT
+        val importance = NotificationManager.IMPORTANCE_HIGH
         val channel = NotificationChannel("default_channel_id", name, importance).apply {
             description = descriptionText
         }
         val notificationManager: NotificationManager =
             context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.createNotificationChannel(channel)
+        Log.d("NotificationChannel", "Notification channel created")
     }
 }
 
@@ -50,6 +52,8 @@ fun sendNotification(context: Context, title: String, message: String) {
         .setContentIntent(pendingIntent)
         .setAutoCancel(true)
 
+    Log.d("Notification", "Attempting to send notification with title: $title and message: $message")
+
     with(NotificationManagerCompat.from(context)) {
         if (ActivityCompat.checkSelfPermission(
                 context,
@@ -63,9 +67,11 @@ fun sendNotification(context: Context, title: String, message: String) {
             //                                          int[] grantResults)
             // to handle the case where the user grants the permission. See the documentation
             // for ActivityCompat#requestPermissions for more details.
+            Log.d("Notification", "Permission POST_NOTIFICATIONS not granted")
             return
         }
         notify(System.currentTimeMillis().toInt(), builder.build())
+        Log.d("Notification", "Notification sent successfully")
     }
 }
 

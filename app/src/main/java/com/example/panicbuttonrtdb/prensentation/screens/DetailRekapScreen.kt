@@ -268,8 +268,7 @@ fun DetailRekapScreen(
                         items(unit) { log ->
                             DetailRekapItem(
                                 record = log,
-                                viewModel = viewModel,
-                                recorId = log.id
+                                viewModel = viewModel
                             )
                         }
                     }

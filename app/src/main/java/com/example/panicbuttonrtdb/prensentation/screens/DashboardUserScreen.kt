@@ -238,7 +238,7 @@ fun DashboardUserScreen(
                     color = Color.White)
             }
 
-            ToggleSwitch(viewModel)
+            ToggleSwitch(viewModel,context)
 
             Column(
                 modifier

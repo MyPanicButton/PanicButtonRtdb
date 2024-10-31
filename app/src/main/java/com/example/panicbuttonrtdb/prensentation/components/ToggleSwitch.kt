@@ -1,5 +1,7 @@
 package com.example.panicbuttonrtdb.prensentation.components
 
+import android.content.Context
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -31,19 +33,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.panicbuttonrtdb.R
+import com.example.panicbuttonrtdb.notification.sendNotification
 import com.example.panicbuttonrtdb.viewmodel.ViewModel
 import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ToggleSwitch(
-    viewModel: ViewModel
+    viewModel: ViewModel,
+    context: Context
 ) {
 
     val buzzerState by viewModel.buzzerState.observeAsState(initial = "Off")
@@ -110,6 +115,12 @@ fun ToggleSwitch(
             delay(20000)
             viewModel.setBuzzerState("off")
         }
+        Log.d("notification", "notifikasi muncul")
+        sendNotification(
+            context = context,
+            "Panic Button",
+            "Buzzer telah diaktifkan"
+        )
     }
     if (showDialog) {
         AlertDialog(
@@ -132,7 +143,8 @@ fun ToggleSwitch(
                         fontWeight = FontWeight.Medium,
                         color = colorResource(id = R.color.primary)
                     )
-                } },
+                }
+            },
             text = {
                 Column {
                     Text("Tambahkan Pesan dan Prioritas")
@@ -174,10 +186,17 @@ fun ToggleSwitch(
                         } else {
                             showError = false
                             viewModel.setBuzzerState("on")
+                            Log.d("ToggleSwitch", "Buzzer state set to on")
                             viewModel.saveMonitorData(
                                 message = message,
                                 priority = selectedPriority,
                                 status = "Proses"
+                            )
+                            Log.d("Notification", "Attempting to send notification (Confirm Button)")
+                            sendNotification(
+                                context = context,
+                                "Panic Button",
+                                "Buzzer telah diaktifkan"
                             )
                             showDialog = false
                         }
