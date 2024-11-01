@@ -24,4 +24,6 @@
     <color name="darurat">#EF233C</color>
     <color name="penting">#FFBD00</color>
     <color name="biasa">#8AC926</color>
+    <color name="backgroundButtonBack">#1F1D1B20</color>
+    <color name="backgroundTextBack">#611D1B20</color>
 </resources>

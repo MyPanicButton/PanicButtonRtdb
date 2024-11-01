@@ -56,6 +56,7 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import kotlinx.coroutines.delay
 
 @Composable
 fun DetailRekapScreen(
@@ -91,7 +92,10 @@ fun DetailRekapScreen(
     }
 
     LaunchedEffect(houseNumber) {
-        viewModel.detailRekap(houseNumber)
+        while (true) {
+            viewModel.detailRekap(houseNumber)
+            delay(2000)
+        }
     }
 
     Box(

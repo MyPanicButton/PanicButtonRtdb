@@ -1,5 +1,7 @@
 package com.example.panicbuttonrtdb.prensentation.components
 
+import android.content.Context
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -21,6 +23,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -34,15 +40,20 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.panicbuttonrtdb.R
+import com.example.panicbuttonrtdb.data.MonitorRecord
+import com.example.panicbuttonrtdb.notification.sendNotification
 import com.example.panicbuttonrtdb.viewmodel.ViewModel
 
 @Composable
 fun MonitorItem(
     modifier: Modifier = Modifier,
     viewModel: ViewModel,
-    navController: NavController
+    navController: NavController,
+    context: Context
 ) {
     val latestRecord by viewModel.latestRecord.collectAsState()
+    val recordData by viewModel.monitorData.observeAsState(emptyList())
+    var lastData : List<MonitorRecord> by remember { mutableStateOf(emptyList()) }
 
     val backgroundColor = when (latestRecord.priority) {
         "Darurat" -> colorResource(id = R.color.darurat)
@@ -50,8 +61,25 @@ fun MonitorItem(
         "Biasa" -> colorResource(id = R.color.biasa)
         else -> Color.Gray
     }
+//    LaunchedEffect(Unit) {
+//        viewModel.fetchLatestRecord()
+//    }
+
     LaunchedEffect(Unit) {
         viewModel.fetchLatestRecord()
+        if (recordData.isNotEmpty() && recordData != lastData) {
+            recordData.forEachIndexed { index, newItem ->
+                val oldItem = lastData.getOrNull(index)
+                if (oldItem != null && newItem != oldItem) {
+                    sendNotification(
+                        context,
+                        title = "Panic Button",
+                        message = "Buzzer telah dibunyikan oleh nomor rumah: ${newItem.houseNumber}, prioritas: ${newItem.priority}"
+                    )
+                }
+            }
+            lastData = recordData
+        }
     }
 
     Card(

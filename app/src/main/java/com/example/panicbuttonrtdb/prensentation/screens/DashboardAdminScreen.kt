@@ -38,6 +38,7 @@ import com.example.panicbuttonrtdb.prensentation.components.MonitorItem
 import com.example.panicbuttonrtdb.prensentation.components.LatestMonitorItem
 import com.example.panicbuttonrtdb.prensentation.components.LogOutAdmin
 import com.example.panicbuttonrtdb.viewmodel.ViewModel
+import kotlinx.coroutines.delay
 
 @Composable
 fun DashboardAdminScreen(
@@ -55,7 +56,10 @@ fun DashboardAdminScreen(
     }
 
     LaunchedEffect(Unit) {
-        viewModel.latestMonitorItem()
+        while (true) {
+            viewModel.latestMonitorItem()
+            delay(2000)
+        }
     }
 
     Column(
@@ -91,7 +95,8 @@ fun DashboardAdminScreen(
 
         MonitorItem(
             viewModel = viewModel,
-            navController = navController
+            navController = navController,
+            context = context
         )
 
         Spacer(modifier = Modifier.height(24.dp))

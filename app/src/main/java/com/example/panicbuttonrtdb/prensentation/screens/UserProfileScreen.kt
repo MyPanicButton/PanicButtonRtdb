@@ -56,7 +56,7 @@ import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberImagePainter
 import com.example.panicbuttonrtdb.R
 import com.example.panicbuttonrtdb.data.User
-import com.example.panicbuttonrtdb.prensentation.components.KeteranganUser
+import com.example.panicbuttonrtdb.prensentation.components.UserInformation
 import com.example.panicbuttonrtdb.notification.openNotificationSettings
 import com.example.panicbuttonrtdb.viewmodel.ViewModel
 import com.google.firebase.database.DataSnapshot
@@ -261,7 +261,11 @@ fun UserProfileScreen(
                     fontSize = 14.sp,
                     color = Color.White
                 )
-                KeteranganUser()
+                UserInformation(
+                    viewModel = viewModel,
+                    context = context
+                )
+
                 Spacer(modifier = Modifier.height(16.dp))
                 Column(
                     modifier

@@ -115,12 +115,6 @@ fun ToggleSwitch(
             delay(20000)
             viewModel.setBuzzerState("off")
         }
-        Log.d("notification", "notifikasi muncul")
-        sendNotification(
-            context = context,
-            "Panic Button",
-            "Buzzer telah diaktifkan"
-        )
     }
     if (showDialog) {
         AlertDialog(
@@ -186,17 +180,15 @@ fun ToggleSwitch(
                         } else {
                             showError = false
                             viewModel.setBuzzerState("on")
-                            Log.d("ToggleSwitch", "Buzzer state set to on")
                             viewModel.saveMonitorData(
                                 message = message,
                                 priority = selectedPriority,
                                 status = "Proses"
                             )
-                            Log.d("Notification", "Attempting to send notification (Confirm Button)")
                             sendNotification(
-                                context = context,
+                                context,
                                 "Panic Button",
-                                "Buzzer telah diaktifkan"
+                                "Buzzer telah diaktifkan dengan skala prioritas $selectedPriority"
                             )
                             showDialog = false
                         }

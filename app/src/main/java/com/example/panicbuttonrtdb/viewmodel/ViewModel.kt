@@ -34,6 +34,8 @@ class ViewModel(private val context: Context) : ViewModel() {
     private val _userData = MutableLiveData<List<User>>()
     val userData: LiveData<List<User>> = _userData
 
+    val userInformation = MutableLiveData<String>()
+
     var currentUserName by mutableStateOf("")
     var currentUserHouseNumber by mutableStateOf("")
 
@@ -316,11 +318,10 @@ class ViewModel(private val context: Context) : ViewModel() {
         monitorRef.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val records = mutableListOf<MonitorRecord>()
-                val userHistoryNumber = currentUserHouseNumber //ambil houseNumber dari user yang login
 
                 for (recordSnapshot in snapshot.children.reversed()){ //reversed utk mengurutkan data dari yang terbaru
                     val record = recordSnapshot.getValue(MonitorRecord::class.java)
-                    if (record?.houseNumber == userHistoryNumber) {
+                    if (record?.houseNumber == currentUserHouseNumber) {
                         records.add(record)
                     }
                 }
@@ -373,6 +374,19 @@ class ViewModel(private val context: Context) : ViewModel() {
         monitorRef.child(recordId).child("status").setValue("Selesai") //update data di status
 
     }
+
+//    fun addUserInformation(houseNumber: String, userText: String) {
+//        val userRef = database.getReference("users").push()
+//
+//        val data = mapOf("information" to userText)
+//        userRef.setValue(data)
+//            .addOnSuccessListener {
+//                Log.d("Firebase", "Data berhasil ditambahkan ke Firebase")
+//            }
+//            .addOnFailureListener { e ->
+//                Log.e("Firebase", "Gagal menambahkan data ke Firebase", e)
+//            }
+//    }
 
     fun getHistoryByHouseNumber(houseNumber: String): LiveData<List<MonitorRecord>> {
         val historyLiveData = MutableLiveData<List<MonitorRecord>>()
