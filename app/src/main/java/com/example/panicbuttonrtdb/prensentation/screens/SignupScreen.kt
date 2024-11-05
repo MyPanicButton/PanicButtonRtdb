@@ -1,5 +1,7 @@
 package com.example.panicbuttonrtdb.prensentation.screens
 
+import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -46,10 +48,13 @@ import com.example.panicbuttonrtdb.viewmodel.ViewModelFactory
 fun SignUpScreen(
     modifier : Modifier = Modifier,
     navController: NavHostController,
-    viewModel: ViewModel = viewModel(factory = ViewModelFactory(LocalContext.current))) {
+    context: Context,
+    viewModel: ViewModel = viewModel(factory = ViewModelFactory(LocalContext.current))
+
+) {
     var name by remember { mutableStateOf("") }
     var houseNumber by remember { mutableStateOf("") }
-    var (password, setPassword) = remember { mutableStateOf("") }
+    val (password, setPassword) = remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") } // Untuk pesan error
 
@@ -159,6 +164,7 @@ fun SignUpScreen(
                             )
                         } else {
                             errorMessage = "Semua kolom harus diisi."
+                            Toast.makeText(context, "Mohon isi semua kolom", Toast.LENGTH_SHORT).show()
                         }
                     },
                     modifier = Modifier

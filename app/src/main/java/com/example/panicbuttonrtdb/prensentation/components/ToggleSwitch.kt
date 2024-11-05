@@ -54,7 +54,7 @@ fun ToggleSwitch(
     val buzzerState by viewModel.buzzerState.observeAsState(initial = "Off")
     var showDialog by remember { mutableStateOf(false) } // State untuk menampilkan dialog
     var pendingToggleState by remember { mutableStateOf(false) } // State untuk menyimpan toggle sementara
-    var selectedPriority by remember { mutableStateOf("") }
+    var selectedPriority by remember { mutableStateOf("Darurat") }
     var message by remember { mutableStateOf("") }
     var showError by remember {mutableStateOf(false)}
 
@@ -141,13 +141,16 @@ fun ToggleSwitch(
             },
             text = {
                 Column {
-                    Text("Tambahkan Pesan dan Prioritas")
+                    Text(
+                        "Tambahkan Pesan dan Prioritas",
+                        color = colorResource(id = R.color.font2)
+                    )
                     Spacer(modifier = Modifier.height(4.dp))
                     OutlinedTextField(
                         value = message,
                         onValueChange = { message = it },
-                        label = { Text(text = "Tambahkan Pesan") },
-                        placeholder = { Text( "Opsional") },
+                        label = { Text(text = "Tambahkan Pesan", color = colorResource(id = R.color.font2)) },
+                        placeholder = { Text( "Opsional", color = colorResource(id = R.color.font3)) },
                         colors = TextFieldDefaults.outlinedTextFieldColors(
                             focusedBorderColor = colorResource(id = R.color.font),
                             focusedLabelColor = colorResource(id = R.color.font),
@@ -213,8 +216,8 @@ fun ToggleSwitch(
                     )
                 ) {
                     Text(
-                        "Tidak",
-                        color = colorResource(id = R.color.background_button)
+                        "Batal",
+                        color = colorResource(id = R.color.font3)
                     )
                 }
             }

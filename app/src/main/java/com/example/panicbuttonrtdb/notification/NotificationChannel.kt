@@ -21,7 +21,7 @@ fun createNotificationChannel(context: Context) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         val name = "Default Channel"
         val descriptionText = "Channel untuk notifikasi default"
-        val importance = NotificationManager.IMPORTANCE_HIGH
+        val importance = NotificationManager.IMPORTANCE_DEFAULT
         val channel = NotificationChannel("default_channel_id", name, importance).apply {
             description = descriptionText
         }

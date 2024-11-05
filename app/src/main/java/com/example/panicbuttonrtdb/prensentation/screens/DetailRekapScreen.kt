@@ -75,8 +75,9 @@ fun DetailRekapScreen(
     val coverImageUrl = if (user?.coverImage.isNullOrEmpty()) emptyCover else user?.coverImage
     val scroll = rememberScrollState()
 
-    LaunchedEffect(houseNumber) {
-        databaseRef.orderByChild("houseNumber").equalTo(houseNumber).addListenerForSingleValueEvent(object : ValueEventListener {
+    LaunchedEffect(houseNumber) { //menampilkan image berdasarkan houseNumber
+        databaseRef.orderByChild("houseNumber").equalTo(houseNumber)
+            .addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 if (snapshot.exists()) {
                     val matchedUser = snapshot.children

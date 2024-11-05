@@ -30,9 +30,7 @@ class ViewModel(private val context: Context) : ViewModel() {
     private val databaseRef = FirebaseDatabase.getInstance().getReference("/buzzer")
     private val userPreferences = UserPreferences(context)
     private val monitorRef = database.getReference("monitor")
-
-    private val _userData = MutableLiveData<List<User>>()
-    val userData: LiveData<List<User>> = _userData
+    private val usersRef = database.getReference("users")
 
     val userInformation = MutableLiveData<String>()
 
@@ -81,8 +79,6 @@ class ViewModel(private val context: Context) : ViewModel() {
         onFailure: (String) -> Unit  // Tambahkan callback untuk error
 
     ) {
-        val usersRef = database.getReference("users")
-
 
         // Periksa apakah sudah ada pengguna dengan nomor rumah atau nama yang sama
         usersRef.orderByChild("houseNumber").equalTo(houseNumber)
@@ -91,6 +87,7 @@ class ViewModel(private val context: Context) : ViewModel() {
                     if (snapshot.exists()) {
                         // Jika nomor rumah sudah ada
                         onFailure("Nomor rumah sudah digunakan.")
+                        Toast.makeText(context, "Nomor rumah sudah digunakan", Toast.LENGTH_SHORT).show()
                     } else {
                         // Lakukan pengecekan untuk nama
                         usersRef.orderByChild("name").equalTo(name)
@@ -99,6 +96,7 @@ class ViewModel(private val context: Context) : ViewModel() {
                                     if (snapshot.exists()) {
                                         // Jika nama sudah ada
                                         onFailure("Nama sudah digunakan.")
+                                        Toast.makeText(context, "Nama sudah digunakan", Toast.LENGTH_SHORT).show()
                                     } else {
                                         // Jika tidak ada duplikasi, simpan data pengguna
                                         val userId = usersRef.push().key // Buat key unik untuk user baru
@@ -108,7 +106,8 @@ class ViewModel(private val context: Context) : ViewModel() {
                                             usersRef.child(it).setValue(user)
                                                 .addOnCompleteListener { task ->
                                                     if (task.isSuccessful) {
-                                                        onSuccess()  // Data berhasil disimpan
+                                                        onSuccess() // Data berhasil disimpan
+                                                        Toast.makeText(context, "Sign Up Berhasil", Toast.LENGTH_SHORT).show()
                                                     } else {
                                                         onFailure("Gagal menyimpan data.")
                                                     }
@@ -146,7 +145,6 @@ class ViewModel(private val context: Context) : ViewModel() {
         }
 
         // Jika bukan admin, cek user biasa di Firebase
-        val usersRef = database.getReference("users")
         usersRef.orderByChild("houseNumber").equalTo(houseNumber)
             .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
@@ -191,7 +189,6 @@ class ViewModel(private val context: Context) : ViewModel() {
 
     // Fungsi untuk menyimpan data ke path /monitor di Firebase
     fun saveMonitorData(message: String, priority: String, status: String) {
-        val monitorRef = database.getReference("monitor")
 
         val data = mapOf(
             "name" to currentUserName,
@@ -232,7 +229,6 @@ class ViewModel(private val context: Context) : ViewModel() {
     }
 
     fun fetchMonitorData() {
-        val monitorRef = database.getReference("monitor")
 
         monitorRef.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -251,8 +247,7 @@ class ViewModel(private val context: Context) : ViewModel() {
     }
 
     fun fetchLatestRecord() {
-        val latestData = database.getReference("monitor")
-        latestData.orderByKey().limitToLast(1)
+        monitorRef.orderByKey().limitToLast(1)
             .addValueEventListener(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     if (snapshot.exists()) {
@@ -273,7 +268,6 @@ class ViewModel(private val context: Context) : ViewModel() {
 
     // fun mengambil 4 data dan menampilkan 3
     fun latestMonitorItem() {
-
         monitorRef.orderByKey().limitToLast(4) // take 4 data terbaru
             .addValueEventListener(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
@@ -308,7 +302,7 @@ class ViewModel(private val context: Context) : ViewModel() {
                 }
 
                 override fun onCancelled(error: DatabaseError) {
-                    Log.e("Firebase", "Failed to fetch detail rekap data", error.toException())
+                    Log.e("detailRekap", "gagal mengambil data", error.toException())
                 }
             })
     }
@@ -348,7 +342,6 @@ class ViewModel(private val context: Context) : ViewModel() {
 
     //funtion utk simpan path foto ke database
     private fun saveImagePathToDatabase(imageUri: String, houseNumber: String, imageType: String, context: Context) {
-        val usersRef = database.getReference("users")
 
         usersRef.orderByChild("houseNumber").equalTo(houseNumber)
             .addListenerForSingleValueEvent(object : ValueEventListener {
@@ -390,7 +383,6 @@ class ViewModel(private val context: Context) : ViewModel() {
 
     fun getHistoryByHouseNumber(houseNumber: String): LiveData<List<MonitorRecord>> {
         val historyLiveData = MutableLiveData<List<MonitorRecord>>()
-        val monitorRef = database.getReference("monitor")
 
         monitorRef.orderByChild("houseNumber").equalTo(houseNumber)
             .addValueEventListener(object : ValueEventListener {

@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
@@ -79,8 +80,7 @@ fun DetailRekapItem(
                 Spacer(modifier = Modifier.width(8.dp))
                 Column(
                     modifier
-                        .wrapContentWidth()
-                        .height(22.dp)
+                        .wrapContentSize()
                         .background(
                             color = when (record.priority) {
                                 "Darurat" -> colorResource(id = R.color.darurat)
@@ -88,9 +88,9 @@ fun DetailRekapItem(
                                 else -> colorResource(id = R.color.biasa)
                             }, RoundedCornerShape(6.dp)
                         )
-                        .padding(horizontal = 4.dp)
                 ) {
                     Text(
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                         text = record.priority,
                         fontSize = 12.sp,
                         color = Color.White

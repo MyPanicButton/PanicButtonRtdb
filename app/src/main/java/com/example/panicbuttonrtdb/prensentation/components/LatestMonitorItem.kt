@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
@@ -34,6 +35,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.panicbuttonrtdb.R
 import com.example.panicbuttonrtdb.viewmodel.ViewModel
+import kotlinx.coroutines.delay
 
 @Composable
 fun LatestMonitorItem(
@@ -44,7 +46,10 @@ fun LatestMonitorItem(
     val recordData by viewModel.monitorData.observeAsState(emptyList())
 
     LaunchedEffect(Unit) {
-        viewModel.latestMonitorItem()
+        while (true) {
+            viewModel.latestMonitorItem()
+            delay(1000)
+        }
     }
 
     Surface(
@@ -78,8 +83,7 @@ fun LatestMonitorItem(
                         )
                         Column(
                             modifier
-                                .height(22.dp)
-                                .wrapContentWidth()
+                                .wrapContentSize()
                                 .background(
                                     color = when (record.priority) {
                                         "Darurat" -> colorResource(id = R.color.darurat)
@@ -88,12 +92,12 @@ fun LatestMonitorItem(
                                     },
                                     RoundedCornerShape(6.dp)
 
-                                )
-                                .padding(horizontal = 4.dp),
+                                ),
                             verticalArrangement = Arrangement.Center,
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Text(
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                                 text = record.priority,
                                 fontSize = 12.sp,
                                 color = Color.White

@@ -41,6 +41,7 @@ import com.example.panicbuttonrtdb.R
 import com.example.panicbuttonrtdb.data.OnBoardingData
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun OnBoarding(navController: NavController) {
     val items = listOf(

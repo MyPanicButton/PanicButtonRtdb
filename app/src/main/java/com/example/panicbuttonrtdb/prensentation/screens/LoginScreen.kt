@@ -2,6 +2,7 @@ package com.example.panicbuttonrtdb.prensentation.screens
 
 import android.app.Activity
 import android.content.Context
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -57,9 +58,8 @@ fun LoginScreen(
         (context as? Activity)?.finish()
     }
     var houseNumber by remember { mutableStateOf("") }
-    var (password, setPassword) = remember { mutableStateOf("") }
+    val (password, setPassword) = remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }  // Indikator loading
-    var errorMessage by remember { mutableStateOf("") }  // Pesan error
 
     Box(
         modifier
@@ -124,7 +124,6 @@ fun LoginScreen(
                     onClick = {
                         if (houseNumber.isNotEmpty() && password.isNotEmpty()) {
                             isLoading = true
-                            errorMessage = ""
 
                             viewModel.validateLogin(houseNumber, password) { success, isAdmin ->
                                 isLoading = false
@@ -137,11 +136,11 @@ fun LoginScreen(
                                         navController.navigate("dashboard")
                                     }
                                 } else {
-                                    errorMessage = "Login gagal. Periksa nomor rumah dan sandi."
+                                    Toast.makeText(context, "Nomor rumah atau Sandi salah", Toast.LENGTH_SHORT).show()
                                 }
                             }
                         } else {
-                            errorMessage = "Nomor rumah dan sandi harus diisi."
+                            Toast.makeText(context,"Mohon isi semua kolom", Toast.LENGTH_SHORT).show()
                         }
                     },
                     modifier = Modifier

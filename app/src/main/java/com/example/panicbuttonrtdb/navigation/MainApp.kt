@@ -1,7 +1,10 @@
 package com.example.panicbuttonrtdb.navigation
 
 import android.content.Context
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
@@ -34,30 +37,28 @@ fun MainApp() {
 
     // Cek status login
     val startDestination = when {
-        isOnboardingShown -> "onboarding"
+        !isOnboardingShown -> "onboarding"
         viewModel.isAdminLoggedIn() -> "dashboard_admin"
         viewModel.isUserLoggedIn() -> "dashboard"
         else -> "login"
     }
-
-//    val startDestination =
-//        if (viewModel.isAdminLoggedIn()){
-//            "dashboard_admin"
-//        } else if (viewModel.isUserLoggedIn()) {
-//            "dashboard"
-//        } else
-//            "login"
 
     NavHost(navController = navController, startDestination = startDestination) {
         
         //onBoarding
         composable("onboarding") {
             OnBoarding(navController = navController)
+            LaunchedEffect(Unit) {
+                sharedPreferences.edit().putBoolean("OnBoardingShown", true).apply()
+            }
         }
         
         // Halaman Sign Up
         composable("signup") {
-            SignUpScreen(navController = navController)
+            SignUpScreen(
+                navController = navController,
+                context = context
+            )
         }
 
         // Halaman Login
@@ -126,7 +127,11 @@ fun MainApp() {
                 viewModel = viewModel
             )
         }
-        composable("help") {
+        composable(
+            "help",
+            enterTransition = { slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Left, animationSpec = tween(500))},
+            exitTransition = {slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Right, animationSpec = tween(500))}
+        ) {
             HelpScreen(
                 navController =navController
             )

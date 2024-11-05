@@ -30,13 +30,17 @@ fun PriorityButton(
     modifier: Modifier = Modifier,
     onPrioritySelected: (String) -> Unit
 ) {
-    var selectedPriority by remember { mutableStateOf("") }
+    var selectedPriority by remember { mutableStateOf("Darurat") }
 
     Column(
         modifier
             .fillMaxWidth()
     ) {
-        Text("Pilih Prioritas", modifier.padding(bottom = 4.dp, top = 4.dp))
+        Text(
+            "Pilih Prioritas",
+            color = colorResource(id = R.color.font2),
+            modifier = Modifier.padding(bottom = 4.dp, top = 4.dp)
+        )
         Row(
             modifier
                 .fillMaxWidth(),
@@ -75,7 +79,7 @@ fun PriorityButton(
                 ) {
                     Text(
                         "Darurat",
-                        color = colorResource(id = R.color.background_button),
+                        color = colorResource(id = R.color.font3),
                         fontSize = 13.sp
                     )
                 }
@@ -110,7 +114,7 @@ fun PriorityButton(
                 ) {
                     Text(
                         "Penting",
-                        color = colorResource(id = R.color.background_button),
+                        color = colorResource(id = R.color.font3),
                         fontSize = 13.sp
                     )
                 }
@@ -145,7 +149,7 @@ fun PriorityButton(
                 ) {
                     Text(
                         "Biasa",
-                        color = colorResource(id = R.color.background_button),
+                        color = colorResource(id = R.color.font3),
                         fontSize = 13.sp
                     )
                 }
