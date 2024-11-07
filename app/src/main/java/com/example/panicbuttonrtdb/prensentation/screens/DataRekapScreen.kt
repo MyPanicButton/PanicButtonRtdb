@@ -46,6 +46,7 @@ import com.example.panicbuttonrtdb.prensentation.components.DataRekapItem
 import com.example.panicbuttonrtdb.prensentation.components.FilterPrioritas
 import com.example.panicbuttonrtdb.prensentation.components.FilterWaktu
 import com.example.panicbuttonrtdb.viewmodel.ViewModel
+import kotlinx.coroutines.delay
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -74,6 +75,7 @@ fun DataRekapScreen(
         }
     LaunchedEffect(Unit) {
         viewModel.fetchMonitorData()
+        delay(2000)
     }
 
     Column(

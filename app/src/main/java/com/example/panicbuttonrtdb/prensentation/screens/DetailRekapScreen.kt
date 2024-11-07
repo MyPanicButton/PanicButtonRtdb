@@ -192,6 +192,8 @@ fun DetailRekapScreen(
                             fontWeight = FontWeight.Bold,
                             color = colorResource(id = R.color.font2)
                         )
+
+                        Spacer(modifier.padding(bottom = 24.dp))
                     }
                     }
                 }

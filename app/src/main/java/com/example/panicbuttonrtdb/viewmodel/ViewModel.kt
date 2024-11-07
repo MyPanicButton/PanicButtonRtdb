@@ -268,19 +268,18 @@ class ViewModel(private val context: Context) : ViewModel() {
 
     // fun mengambil 4 data dan menampilkan 3
     fun latestMonitorItem() {
-        monitorRef.orderByKey().limitToLast(4) // take 4 data terbaru
+        monitorRef.orderByKey().limitToLast(3) // take 4 data terbaru
             .addValueEventListener(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     val records = mutableListOf<MonitorRecord>()
 
-                    for ((count, recordSnapshot) in snapshot.children.reversed().withIndex()) {
-                        if (count != 0) { // lewati data pertama
-                            val record = recordSnapshot.getValue(MonitorRecord::class.java)
-                            record?.let { records.add(it) }
-                        }
+                    for (recordSnapshot in snapshot.children.reversed()) {
+                        val record = recordSnapshot.getValue(MonitorRecord::class.java)
+                        record?.let { records.add(it) }
+
                     }
 
-                    _monitorData.value = records.take(3) // take 3 data
+                    _monitorData.value = records
                 }
 
                 override fun onCancelled(error: DatabaseError) {
