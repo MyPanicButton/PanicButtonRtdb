@@ -8,7 +8,7 @@ data class User (
     val houseNumber: String,
     val password: String,
     val phoneNumber: String = "",
-    val userInformation: String = "",
+    val note: String = "",
 
     @get:PropertyName("profileImage") //getter
     @set:PropertyName("profileImage") //setter

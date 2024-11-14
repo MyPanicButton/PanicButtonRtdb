@@ -2,6 +2,7 @@ package com.example.panicbuttonrtdb.prensentation.screens
 
 import android.content.Context
 import android.widget.Toast
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -14,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
@@ -58,143 +60,162 @@ fun SignUpScreen(
     var isLoading by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") } // Untuk pesan error
 
-    Box(
+    Column(
         modifier
             .background(color = colorResource(id = R.color.primary))
-            .fillMaxSize(),
-        contentAlignment = Alignment.BottomCenter
+            .fillMaxSize()
     ) {
         Box(
             modifier
-                .height(600.dp)
-                .background(
-                    color = Color.White, RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
-                )
                 .fillMaxWidth()
-                .padding(start = 24.dp, end = 24.dp)
-        ){
-            Column(
+                .wrapContentHeight()
+                .padding(top = 60.dp),
+            contentAlignment = Alignment.TopCenter
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.ic_logo),
+                contentDescription = "ic_logo",
+                modifier = Modifier.size(160.dp)
+            )
+        }
+        Box(
+            modifier
+                .background(color = colorResource(id = R.color.primary))
+                .fillMaxSize(),
+            contentAlignment = Alignment.BottomCenter
+        ) {
+            Box(
                 modifier
-                    .padding(top = 40.dp)
-                    .fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = "Sign Up",
-                    fontSize = 36.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = colorResource(id = R.color.font)
-                )
-                Spacer(modifier = Modifier.height(44.dp))
-                OutlinedTextField(
-                    value = name,
-                    onValueChange = {name = it},
-                    label = { Text(text = "Nama") },
-                    shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(
-                        imeAction = ImeAction.Next
-                    ),
-                    leadingIcon = {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_user),
-                            contentDescription = "ic profile",
-                            modifier = Modifier.size(24.dp)
-                        )
-                    },
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = colorResource(id = R.color.font),
-                        focusedLabelColor = colorResource(id = R.color.font),
-                        focusedLeadingIconColor = colorResource(id = R.color.font),
-                        unfocusedLeadingIconColor = colorResource(id = R.color.defauld),
-                        cursorColor = colorResource(id = R.color.font)
+                    .height(600.dp)
+                    .background(
+                        color = Color.White, RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
                     )
-                )
-                Spacer(modifier = Modifier.height(12.dp))
-
-                OutlinedTextField(
-                    value = houseNumber,
-                    onValueChange = {houseNumber = it},
-                    label = { Text(text = "Nomor Rumah") },
-                    shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(
-                        imeAction = ImeAction.Next
-                    ),
-                    leadingIcon = {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_home),
-                            contentDescription = "ic home",
-                            modifier = Modifier.size(24.dp)
-                        )
-                    },
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = colorResource(id = R.color.font),
-                        focusedLabelColor = colorResource(id = R.color.font),
-                        focusedLeadingIconColor = colorResource(id = R.color.font),
-                        unfocusedLeadingIconColor = colorResource(id = R.color.defauld),
-                        cursorColor = colorResource(id = R.color.font)
-                    )
-                )
-                Spacer(modifier = Modifier.height(12.dp))
-
-                OutlinedTextFieldPassword(password, setPassword)
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                Button(
-                    onClick = {
-                        if (name.isNotEmpty() && houseNumber.isNotEmpty() && password.isNotEmpty()) {
-                            isLoading = true
-                            errorMessage = ""  // Reset pesan error
-                            viewModel.saveUserToFirebase(
-                                name = name,
-                                houseNumber = houseNumber,
-                                password = password,
-                                onSuccess = {
-                                    isLoading = false
-                                    navController.navigate("login")  // Navigasi ke login jika berhasil
-                                },
-                                onFailure = { error ->
-                                    isLoading = false
-                                    errorMessage = error  // Tampilkan pesan error
-                                }
-                            )
-                        } else {
-                            errorMessage = "Semua kolom harus diisi."
-                            Toast.makeText(context, "Mohon isi semua kolom", Toast.LENGTH_SHORT).show()
-                        }
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(50.dp)
-                    ,
-                    enabled = !isLoading, // Matikan tombol saat loading
-                    shape = RoundedCornerShape(26.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = colorResource(id = R.color.font),
-                        contentColor = Color.White
-                    )
-                ) {
-                    Text(text = "Sign Up")
-                }
-
-                Spacer(modifier = Modifier.height(36.dp))
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    .fillMaxWidth()
+                    .padding(start = 24.dp, end = 24.dp)
+            ){
+                Column(
+                    modifier
+                        .padding(top = 40.dp)
+                        .fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = "Sudah memiliki akun?"
-                    )
-                    Text(
-                        modifier = Modifier
-                            .clickable { navController.navigate("login") },
-                        text = "Login",
+                        text = "Sign Up",
+                        fontSize = 36.sp,
                         fontWeight = FontWeight.Bold,
                         color = colorResource(id = R.color.font)
                     )
+                    Spacer(modifier = Modifier.height(44.dp))
+                    OutlinedTextField(
+                        value = name,
+                        onValueChange = {name = it},
+                        label = { Text(text = "Nama") },
+                        shape = RoundedCornerShape(8.dp),
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(
+                            imeAction = ImeAction.Next
+                        ),
+                        leadingIcon = {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_user),
+                                contentDescription = "ic profile",
+                                modifier = Modifier.size(24.dp)
+                            )
+                        },
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = colorResource(id = R.color.font),
+                            focusedLabelColor = colorResource(id = R.color.font),
+                            focusedLeadingIconColor = colorResource(id = R.color.font),
+                            unfocusedLeadingIconColor = colorResource(id = R.color.defauld),
+                            cursorColor = colorResource(id = R.color.font)
+                        )
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    OutlinedTextField(
+                        value = houseNumber,
+                        onValueChange = {houseNumber = it},
+                        label = { Text(text = "Nomor Rumah") },
+                        shape = RoundedCornerShape(8.dp),
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(
+                            imeAction = ImeAction.Next
+                        ),
+                        leadingIcon = {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_home),
+                                contentDescription = "ic home",
+                                modifier = Modifier.size(24.dp)
+                            )
+                        },
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = colorResource(id = R.color.font),
+                            focusedLabelColor = colorResource(id = R.color.font),
+                            focusedLeadingIconColor = colorResource(id = R.color.font),
+                            unfocusedLeadingIconColor = colorResource(id = R.color.defauld),
+                            cursorColor = colorResource(id = R.color.font)
+                        )
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    OutlinedTextFieldPassword(password, setPassword)
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    Button(
+                        onClick = {
+                            if (name.isNotEmpty() && houseNumber.isNotEmpty() && password.isNotEmpty()) {
+                                isLoading = true
+                                errorMessage = ""  // Reset pesan error
+                                viewModel.saveUserToFirebase(
+                                    name = name,
+                                    houseNumber = houseNumber,
+                                    password = password,
+                                    onSuccess = {
+                                        isLoading = false
+                                        navController.navigate("login")  // Navigasi ke login jika berhasil
+                                    },
+                                    onFailure = { error ->
+                                        isLoading = false
+                                        errorMessage = error  // Tampilkan pesan error
+                                    }
+                                )
+                            } else {
+                                errorMessage = "Semua kolom harus diisi."
+                                Toast.makeText(context, "Mohon isi semua kolom", Toast.LENGTH_SHORT).show()
+                            }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(50.dp)
+                        ,
+                        enabled = !isLoading, // Matikan tombol saat loading
+                        shape = RoundedCornerShape(26.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = colorResource(id = R.color.font),
+                            contentColor = Color.White
+                        )
+                    ) {
+                        Text(text = "Sign Up")
+                    }
+
+                    Spacer(modifier = Modifier.height(36.dp))
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Text(
+                            text = "Sudah memiliki akun?"
+                        )
+                        Text(
+                            modifier = Modifier
+                                .clickable { navController.navigate("login") },
+                            text = "Login",
+                            fontWeight = FontWeight.Bold,
+                            color = colorResource(id = R.color.font)
+                        )
+                    }
                 }
             }
         }

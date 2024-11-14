@@ -5,9 +5,14 @@ import android.content.Intent
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -21,6 +26,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.panicbuttonrtdb.MainActivity
 import com.example.panicbuttonrtdb.R
 import kotlinx.coroutines.delay
@@ -65,6 +71,18 @@ fun Splash(
                 modifier = Modifier
                     .size(180.dp)
                     .alpha(alpha)
+            )
+        }
+        Box(
+            modifier
+                .fillMaxWidth()
+                .height(180.dp),
+            contentAlignment = Alignment.BottomCenter
+        ) {
+            Text(
+                text = "Versi 1.1",
+                fontSize = 12.sp,
+                color = Color.Gray
             )
         }
     }

@@ -52,6 +52,7 @@ import coil.request.CachePolicy
 import com.example.panicbuttonrtdb.R
 import com.example.panicbuttonrtdb.data.User
 import com.example.panicbuttonrtdb.prensentation.components.DetailRekapItem
+import com.example.panicbuttonrtdb.prensentation.components.UserInformationForAdmin
 import com.example.panicbuttonrtdb.viewmodel.ViewModel
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -74,7 +75,6 @@ fun DetailRekapScreen(
     val unit = record.filter { it.houseNumber == houseNumber }
     val profileImageUrl = if (user?.imageProfile.isNullOrEmpty()) emptyProfile else user?.imageProfile
     val coverImageUrl = if (user?.coverImage.isNullOrEmpty()) emptyCover else user?.coverImage
-    val scroll = rememberScrollState()
 
     LaunchedEffect(houseNumber) { //menampilkan image berdasarkan houseNumber
         databaseRef.orderByChild("houseNumber").equalTo(houseNumber)
@@ -233,23 +233,10 @@ fun DetailRekapScreen(
                     fontSize = 14.sp,
                     color = Color.White
                 )
-                Column(
-                    modifier
-                        .padding(horizontal = 24.dp)
-                        .fillMaxWidth()
-                        .background(Color.White, RoundedCornerShape(16.dp))
-                ) {
-                    Text(
-                        modifier = Modifier
-                            .padding(24.dp)
-                            .verticalScroll(scroll),
-                        text = "Tidak ada keterangan",
-                        fontSize = 12.sp,
-                        color = colorResource(id = R.color.font2),
-                        style = TextStyle(lineHeight = 16.sp
-                        )
-                    )
-                }
+                UserInformationForAdmin(
+                    viewModel = viewModel,
+                    houseNumber = houseNumber
+                )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     modifier = Modifier.padding(start = 24.dp),

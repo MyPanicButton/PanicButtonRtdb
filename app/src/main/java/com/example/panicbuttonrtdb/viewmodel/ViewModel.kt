@@ -11,7 +11,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.panicbuttonrtdb.data.MonitorRecord
 import com.example.panicbuttonrtdb.data.User
 import com.example.panicbuttonrtdb.data.UserPreferences
@@ -19,7 +18,6 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
-import com.google.firebase.database.values
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -34,13 +32,14 @@ open class ViewModel(private val context: Context) : ViewModel() {
     private val monitorRef = database.getReference("monitor")
     private val usersRef = database.getReference("users")
 
-    val userInformation = MutableLiveData<String>()
-
     var currentUserName by mutableStateOf("")
     var currentUserHouseNumber by mutableStateOf("")
 
     private val _monitorData = MutableLiveData<List<MonitorRecord>>()
     val monitorData: LiveData<List<MonitorRecord>> get() = _monitorData
+
+    private val _userData = MutableLiveData<Map<String, String>>()
+    val userData: LiveData<Map<String, String>> get() = _userData
 
     private val _latestRecord = MutableStateFlow(MonitorRecord())
     val latestRecord: StateFlow<MonitorRecord> = _latestRecord
@@ -370,21 +369,56 @@ open class ViewModel(private val context: Context) : ViewModel() {
 
     }
 
-    fun savePhoneNumberAndNote(phoneNumber: String, note:String){
-        val userData = hashMapOf(
-            "phoneNumber" to phoneNumber,
-            "note" to note
-        )
-        viewModelScope.launch {
-            usersRef.push().setValue(userData)
-                .addOnCompleteListener{ task ->
-                    if (task.isSuccessful) {
-                        Log.d("save user data", "berhasil")
-                    } else {
-                        Log.e("save user data", "gagal")
+    // fun utk save no hp & note user
+    fun savePhoneNumberAndNote(houseNumber: String, phoneNumber: String, note: String) {
+        usersRef.orderByChild("houseNumber").equalTo(houseNumber)
+            .addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if (snapshot.exists()) {
+                    for (child in snapshot.children) {
+                        child.ref.child("phoneNumber").setValue(phoneNumber)
+                        child.ref.child("note").setValue(note)
+                            .addOnCompleteListener { task ->
+                                if (task.isSuccessful) {
+                                    Log.d("Firebase", "Data berhasil diperbarui untuk $houseNumber")
+                                    Toast.makeText(context, "Keterangan berhasil simpan", Toast.LENGTH_SHORT).show()
+                                } else {
+                                    Log.e("Firebase", "Gagal memperbarui data: ${task.exception?.message}")
+                                }
+                            }
                     }
+                } else {
+                    Log.e("Firebase", "Data dengan houseNumber $houseNumber tidak ditemukan")
                 }
-        }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("Firebase", "Error: ${error.message}")
+            }
+        })
+    }
+
+    //fun utk fetch no hp dan note user
+    fun fetchUserData(houseNumber: String) {
+        usersRef.orderByChild("houseNumber").equalTo(houseNumber)
+            .addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if (snapshot.exists()) {
+                    val userSnapshot = snapshot.children.first()
+                    val phoneNumber = userSnapshot.child("phoneNumber").getValue(String::class.java) ?: ""
+                    val note = userSnapshot.child("note").getValue(String::class.java) ?: ""
+                    _userData.postValue(
+                        mapOf(
+                            "phoneNumber" to phoneNumber,
+                            "note" to note)
+                    )
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("Firebase", "Gagal mengambil data: ${error.message}")
+            }
+        })
     }
 
     fun getHistoryByHouseNumber(houseNumber: String): LiveData<List<MonitorRecord>> {

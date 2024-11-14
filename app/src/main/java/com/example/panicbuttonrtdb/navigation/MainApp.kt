@@ -12,6 +12,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.panicbuttonrtdb.data.User
 import com.example.panicbuttonrtdb.prensentation.components.OnBoarding
 import com.example.panicbuttonrtdb.prensentation.screens.UserProfileScreen
 import com.example.panicbuttonrtdb.prensentation.screens.DetailRekapScreen
