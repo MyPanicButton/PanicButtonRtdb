@@ -60,6 +60,7 @@ import com.example.panicbuttonrtdb.R
 import com.example.panicbuttonrtdb.data.User
 import com.example.panicbuttonrtdb.prensentation.components.UserInformation
 import com.example.panicbuttonrtdb.notification.openNotificationSettings
+import com.example.panicbuttonrtdb.prensentation.components.UserInformation2
 import com.example.panicbuttonrtdb.viewmodel.ViewModel
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -263,10 +264,7 @@ fun UserProfileScreen(
                     fontSize = 14.sp,
                     color = Color.White
                 )
-                UserInformation(
-                    viewModel = viewModel,
-                    context = context
-                )
+                UserInformation2(viewModel = viewModel)
 
                 Spacer(modifier = Modifier.height(16.dp))
                 Column(

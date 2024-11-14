@@ -11,6 +11,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.panicbuttonrtdb.data.MonitorRecord
 import com.example.panicbuttonrtdb.data.User
 import com.example.panicbuttonrtdb.data.UserPreferences
@@ -18,12 +19,13 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.values
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class ViewModel(private val context: Context) : ViewModel() {
+open class ViewModel(private val context: Context) : ViewModel() {
 
     private val database = FirebaseDatabase.getInstance()
     private val storage = FirebaseStorage.getInstance().reference
@@ -61,9 +63,9 @@ class ViewModel(private val context: Context) : ViewModel() {
         currentUserHouseNumber = userPreferences.getHouseNumber() ?: ""
     }
 
-//    init {
-//        fetchLatestRecord()
-//    }
+    init {
+        fetchLatestRecord()
+    }
 
     init {
         // Inisialisasi untuk mendapatkan status awal buzzer dari Firebase
@@ -266,21 +268,20 @@ class ViewModel(private val context: Context) : ViewModel() {
             })
     }
 
-    // fun mengambil 4 data dan menampilkan 3
+
+    // fun menampilkan 3 data
     fun latestMonitorItem() {
-        monitorRef.orderByKey().limitToLast(4) // take 4 data terbaru
+        monitorRef.orderByKey().limitToLast(3) // take 3 data terbaru
             .addValueEventListener(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     val records = mutableListOf<MonitorRecord>()
 
-                    for ((count, recordSnapshot) in snapshot.children.reversed().withIndex()) {
-                        if (count != 0) { // lewati data pertama
-                            val record = recordSnapshot.getValue(MonitorRecord::class.java)
-                            record?.let { records.add(it) }
-                        }
+                    for (recordSnapshot in snapshot.children.reversed()) {
+                        val record = recordSnapshot.getValue(MonitorRecord::class.java)
+                        record?.let { records.add(it) }
                     }
 
-                    _monitorData.value = records.take(3) // take 3 data
+                    _monitorData.value = records // take 3 data
                 }
 
                 override fun onCancelled(error: DatabaseError) {
@@ -288,6 +289,7 @@ class ViewModel(private val context: Context) : ViewModel() {
                 }
             })
     }
+
 
     // Fungsi untuk menampilkan detail rekap berdasarkan nomor rumah
     fun detailRekap(houseNumber: String) {
@@ -368,18 +370,22 @@ class ViewModel(private val context: Context) : ViewModel() {
 
     }
 
-//    fun addUserInformation(houseNumber: String, userText: String) {
-//        val userRef = database.getReference("users").push()
-//
-//        val data = mapOf("information" to userText)
-//        userRef.setValue(data)
-//            .addOnSuccessListener {
-//                Log.d("Firebase", "Data berhasil ditambahkan ke Firebase")
-//            }
-//            .addOnFailureListener { e ->
-//                Log.e("Firebase", "Gagal menambahkan data ke Firebase", e)
-//            }
-//    }
+    fun savePhoneNumberAndNote(phoneNumber: String, note:String){
+        val userData = hashMapOf(
+            "phoneNumber" to phoneNumber,
+            "note" to note
+        )
+        viewModelScope.launch {
+            usersRef.push().setValue(userData)
+                .addOnCompleteListener{ task ->
+                    if (task.isSuccessful) {
+                        Log.d("save user data", "berhasil")
+                    } else {
+                        Log.e("save user data", "gagal")
+                    }
+                }
+        }
+    }
 
     fun getHistoryByHouseNumber(houseNumber: String): LiveData<List<MonitorRecord>> {
         val historyLiveData = MutableLiveData<List<MonitorRecord>>()

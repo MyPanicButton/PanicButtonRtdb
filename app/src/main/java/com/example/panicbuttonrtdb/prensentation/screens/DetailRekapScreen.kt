@@ -43,6 +43,7 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -173,9 +174,9 @@ fun DetailRekapScreen(
                             fontSize = 18.sp,
                             color = colorResource(id = R.color.font),
                             fontWeight = FontWeight.Bold,
-                            maxLines = 1
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                         )
-
                     Row(
                         modifier
                             .fillMaxWidth(),
@@ -190,8 +191,10 @@ fun DetailRekapScreen(
                             text = rekap.houseNumber,
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Bold,
-                            color = colorResource(id = R.color.font2)
+                            color = colorResource(id = R.color.font2),
+                            maxLines = 1
                         )
+                        Spacer(modifier = Modifier.padding(bottom = 48.dp))
                     }
                     }
                 }
