@@ -351,7 +351,7 @@ open class ViewModel(private val context: Context) : ViewModel() {
                         for (userSnapshot in snapshot.children) {
                             userSnapshot.ref.child(imageType).setValue(imageUri)
                                 .addOnSuccessListener {
-                                    Toast.makeText(context, "$imageType berhasil di perbaharui", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, "$imageType berhasil di diperbaharui. Tunggu beberapa saat", Toast.LENGTH_SHORT).show()
                                 }
                         }
                     }
@@ -420,31 +420,6 @@ open class ViewModel(private val context: Context) : ViewModel() {
             }
         })
     }
-
-    fun getHistoryByHouseNumber(houseNumber: String): LiveData<List<MonitorRecord>> {
-        val historyLiveData = MutableLiveData<List<MonitorRecord>>()
-
-        monitorRef.orderByChild("houseNumber").equalTo(houseNumber)
-            .addValueEventListener(object : ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    val historyList = mutableListOf<MonitorRecord>()
-                    for (data in snapshot.children) {
-                        val record = data.getValue(MonitorRecord::class.java)
-                        if (record != null) {
-                            historyList.add(record)
-                        }
-                    }
-                    historyLiveData.value = historyList
-                }
-
-                override fun onCancelled(error: DatabaseError) {
-                    Log.e("Firebase", "Error fetching data: ${error.message}")
-                }
-            })
-
-        return historyLiveData
-    }
-
 
     private fun getCurrentTimestampFormatted(): String {
         val sdf = java.text.SimpleDateFormat("yyyy-MM-dd 'waktu' HH:mm", java.util.Locale.getDefault())

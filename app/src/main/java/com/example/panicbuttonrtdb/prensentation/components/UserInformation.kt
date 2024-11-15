@@ -6,9 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
@@ -190,8 +188,8 @@ fun UserInformationForAdmin(
     houseNumber: String
 ) {
     val userData by viewModel.userData.observeAsState(mapOf())
-    var phoneNumber by remember { mutableStateOf(userData["phoneNumber"] ?: "") }
-    var note by remember { mutableStateOf(userData["note"] ?: "") }
+    val phoneNumber by remember { mutableStateOf(userData["phoneNumber"] ?: "") }
+    val note by remember { mutableStateOf(userData["note"] ?: "") }
 
     LaunchedEffect(houseNumber) {
         while (true) {
@@ -233,7 +231,7 @@ fun UserInformationForAdmin(
                     },
                     placeholder = {
                         Text(
-                            text = if (phoneNumber.isNotEmpty()) phoneNumber else "Nomor Hp pengguna",
+                            text = phoneNumber.ifEmpty { "Nomor Hp pengguna" },
                             fontSize = 13.sp
                         )
                     },
@@ -271,7 +269,7 @@ fun UserInformationForAdmin(
                     },
                     placeholder = { // tampilkan data note disini
                         Text(
-                            text = if (note.isNotEmpty()) note else "Keterangan rumah",
+                            text = note.ifEmpty { "Keterangan rumah" },
                             fontSize = 13.sp
                         )
                     },

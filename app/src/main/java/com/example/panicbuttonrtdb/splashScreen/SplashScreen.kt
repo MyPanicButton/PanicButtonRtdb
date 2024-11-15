@@ -5,12 +5,10 @@ import android.content.Intent
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -76,11 +74,11 @@ fun Splash(
         Box(
             modifier
                 .fillMaxWidth()
-                .height(180.dp),
+                .padding(bottom = 40.dp),
             contentAlignment = Alignment.BottomCenter
         ) {
             Text(
-                text = "Versi 1.1",
+                text = "Versi 1.2",
                 fontSize = 12.sp,
                 color = Color.Gray
             )

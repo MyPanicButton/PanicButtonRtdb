@@ -20,7 +20,6 @@ import com.example.panicbuttonrtdb.prensentation.screens.DataRekapScreen
 import com.example.panicbuttonrtdb.prensentation.screens.DashboardAdminScreen
 import com.example.panicbuttonrtdb.prensentation.screens.DashboardUserScreen
 import com.example.panicbuttonrtdb.prensentation.screens.HelpScreen
-import com.example.panicbuttonrtdb.prensentation.screens.HistoryScreen
 import com.example.panicbuttonrtdb.prensentation.screens.LoginScreen
 import com.example.panicbuttonrtdb.prensentation.screens.SignUpScreen
 import com.example.panicbuttonrtdb.viewmodel.ViewModel
@@ -94,17 +93,6 @@ fun MainApp() {
                     navController.navigate("login")
                 }
             )
-        }
-
-        // Halaman History untuk nomor rumah tertentu
-        composable(
-            route = "history/{houseNumber}",
-            arguments = listOf(navArgument("houseNumber") { type = NavType.StringType })
-        ) { backStackEntry ->
-            val houseNumber = backStackEntry.arguments?.getString("houseNumber")
-            if (houseNumber != null) {
-                HistoryScreen(navController = navController, viewModel = viewModel, houseNumber = houseNumber)
-            }
         }
 
         composable("data_rekap") {
