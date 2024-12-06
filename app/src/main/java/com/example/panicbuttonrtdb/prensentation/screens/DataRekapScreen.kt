@@ -74,8 +74,10 @@ fun DataRekapScreen(
             }
         }
     LaunchedEffect(Unit) {
-        viewModel.fetchMonitorData()
-        delay(2000)
+        while (true) {
+            viewModel.fetchMonitorData()
+            delay(2000)
+        }
     }
 
     Column(

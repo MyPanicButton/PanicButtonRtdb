@@ -17,10 +17,8 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -41,8 +39,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -51,6 +49,7 @@ import coil.request.CachePolicy
 import com.example.panicbuttonrtdb.R
 import com.example.panicbuttonrtdb.data.User
 import com.example.panicbuttonrtdb.prensentation.components.DetailRekapItem
+import com.example.panicbuttonrtdb.prensentation.components.UserInformationForAdmin
 import com.example.panicbuttonrtdb.viewmodel.ViewModel
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -73,7 +72,6 @@ fun DetailRekapScreen(
     val unit = record.filter { it.houseNumber == houseNumber }
     val profileImageUrl = if (user?.imageProfile.isNullOrEmpty()) emptyProfile else user?.imageProfile
     val coverImageUrl = if (user?.coverImage.isNullOrEmpty()) emptyCover else user?.coverImage
-    val scroll = rememberScrollState()
 
     LaunchedEffect(houseNumber) { //menampilkan image berdasarkan houseNumber
         databaseRef.orderByChild("houseNumber").equalTo(houseNumber)
@@ -173,9 +171,9 @@ fun DetailRekapScreen(
                             fontSize = 18.sp,
                             color = colorResource(id = R.color.font),
                             fontWeight = FontWeight.Bold,
-                            maxLines = 1
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                         )
-
                     Row(
                         modifier
                             .fillMaxWidth(),
@@ -190,10 +188,13 @@ fun DetailRekapScreen(
                             text = rekap.houseNumber,
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Bold,
-                            color = colorResource(id = R.color.font2)
+                            color = colorResource(id = R.color.font2),
+                            maxLines = 1
                         )
 
                         Spacer(modifier.padding(bottom = 24.dp))
+
+                        Spacer(modifier = Modifier.padding(bottom = 48.dp))
                     }
                     }
                 }
@@ -232,23 +233,10 @@ fun DetailRekapScreen(
                     fontSize = 14.sp,
                     color = Color.White
                 )
-                Column(
-                    modifier
-                        .padding(horizontal = 24.dp)
-                        .fillMaxWidth()
-                        .background(Color.White, RoundedCornerShape(16.dp))
-                ) {
-                    Text(
-                        modifier = Modifier
-                            .padding(24.dp)
-                            .verticalScroll(scroll),
-                        text = "Tidak ada keterangan",
-                        fontSize = 12.sp,
-                        color = colorResource(id = R.color.font2),
-                        style = TextStyle(lineHeight = 16.sp
-                        )
-                    )
-                }
+                UserInformationForAdmin(
+                    viewModel = viewModel,
+                    houseNumber = houseNumber
+                )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     modifier = Modifier.padding(start = 24.dp),

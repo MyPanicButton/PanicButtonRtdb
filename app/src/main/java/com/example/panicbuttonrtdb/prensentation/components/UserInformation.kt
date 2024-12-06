@@ -1,28 +1,27 @@
 package com.example.panicbuttonrtdb.prensentation.components
 
 import android.content.Context
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.material3.AlertDialog
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -30,161 +29,261 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.panicbuttonrtdb.R
 import com.example.panicbuttonrtdb.viewmodel.ViewModel
+import kotlinx.coroutines.delay
 
 @Composable
 fun UserInformation(
     modifier: Modifier = Modifier,
-    viewModel: ViewModel,
-    context: Context
+    viewModel: ViewModel
 ) {
-
+    val context = LocalContext.current
     val sharedPref = context.getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
-    val houseNumber = sharedPref.getString("house_number", "")
-    val defaultText = stringResource(id = R.string.userInformation)
-    val textScroll = rememberScrollState()
-    val userInformation by viewModel.userInformation.observeAsState(defaultText)
-    var userText by remember { mutableStateOf(defaultText) }
-    var isEditing by remember { mutableStateOf(false) }
-    var showDialog by remember { mutableStateOf(false) }
-    var editedText by remember { mutableStateOf(userText) }
-    var isTextChanges by remember { mutableStateOf(false) }
+    val houseNumber = sharedPref.getString("house_number", "") ?: ""
+    val userData by viewModel.userData.observeAsState(mapOf())
+    var phoneNumber by remember { mutableStateOf(userData["phoneNumber"] ?: "") }
+    var note by remember { mutableStateOf(userData["note"] ?: "") }
 
-    Box(
+    LaunchedEffect(houseNumber) {
+        while (true){
+            viewModel.fetchUserData(houseNumber)
+            delay(2000)
+        }
+    }
+
+    Surface(
         modifier
-            .height(130.dp)
-            .fillMaxWidth()
-            .background(Color.White)
+            .padding(horizontal = 24.dp)
+            .wrapContentSize(),
+        shape = RoundedCornerShape(16.dp),
+        shadowElevation = 4.dp
     ) {
-        Text(
-            modifier = Modifier
-                .fillMaxHeight()
-                .padding(24.dp),
-            text = userInformation,
-            fontSize = 12.sp,
-            style = TextStyle(lineHeight = 16.sp)
-        )
         Column(
             modifier
-                .height(80.dp)
                 .fillMaxWidth()
-                .background(
-                    brush = Brush.verticalGradient(
-                        colors = listOf(
-                            Color.Transparent,
-                            Color.White
-                        )
-                    )
-                )
-                .align(Alignment.BottomCenter)
-                .padding(start = 24.dp, end = 24.dp, top = 24.dp, bottom = 12.dp),
-            verticalArrangement = Arrangement.Bottom
+                .wrapContentHeight()
+                .background(Color.White, RoundedCornerShape(16.dp))
+                .padding(8.dp),
         ) {
             Row(
-                modifier
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.End,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                TextButton(
+                TextField(
                     modifier = Modifier
-                        .wrapContentSize(),
-                    onClick = {
-                        showDialog = true
-                        isEditing = false
-                        editedText = userText
+                        .wrapContentHeight()
+                        .fillMaxWidth(),
+                    value = phoneNumber,
+                    onValueChange = { phoneNumber = it},
+                    leadingIcon = {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_phonenumber),
+                            contentDescription = "ic_phonenumber",
+                            tint = colorResource(id = R.color.font2)
+                        )
                     },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = colorResource(id = R.color.background_button)
-                    )
-                ) {
-                    Text(
-                        text = "Tambahkan",
-                        color = colorResource(id = R.color.font2)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_arrow_right),
-                        contentDescription = "ic_arrow_right",
-                        tint = colorResource(id = R.color.font2)
-                    )
-                }
+                    placeholder = {
+                        Text(
+                            text = phoneNumber.ifEmpty { "Masukan No Hp Anda" },
+                            fontSize = 13.sp
+                        )
+                    },
+                    singleLine = true,
+                    colors = TextFieldDefaults.colors(
+                        cursorColor = colorResource(id = R.color.font),
+                        unfocusedIndicatorColor = Color.White,
+                        focusedIndicatorColor = Color.White,
+                        focusedContainerColor = Color.White,
+                        unfocusedContainerColor = Color.White,
+                    ),
+                    keyboardOptions = KeyboardOptions(
+                        imeAction = ImeAction.Done
+                    ),
+                )
+            }
+
+            HorizontalDivider(
+                thickness = 1.dp,
+                color = colorResource(id = R.color.font3),
+                modifier = Modifier.padding(horizontal = 16.dp)
+            )
+
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                TextField(
+                    modifier = Modifier
+                        .wrapContentHeight()
+                        .fillMaxWidth(),
+                    value = note,
+                    onValueChange = {note = it},
+                    leadingIcon = {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_note),
+                            contentDescription = "ic_note",
+                            tint = colorResource(id = R.color.font2)
+                        )
+                    },
+                    placeholder = {
+                        Text(
+                            text = note.ifEmpty { "Masukan keterangan tentang rumah anda" },
+                            fontSize = 13.sp
+                        )
+                    },
+                    colors = TextFieldDefaults.colors(
+                        cursorColor = colorResource(id = R.color.font),
+                        unfocusedIndicatorColor = Color.White,
+                        focusedIndicatorColor = Color.White,
+                        focusedContainerColor = Color.White,
+                        unfocusedContainerColor = Color.White,
+                    ),
+                    keyboardOptions = KeyboardOptions(
+                        imeAction = ImeAction.Done
+                    ),
+                )
             }
         }
-        if (showDialog) {
-            AlertDialog(
-                onDismissRequest = { showDialog = false },
-                title = { Text(text = "Edit Keterangan")},
-                text = {
-                    OutlinedTextField(
-                        value = editedText,
-                        onValueChange = { newText ->
-                            editedText = newText
-                            isTextChanges = newText != userText
-                        },
-                        label = { Text("Keterangan")},
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                },
-                confirmButton = {
-                    if (isTextChanges) {
-                        Button(
-                            onClick = {
-                                userText = editedText
-                                isTextChanges = false
-                                isEditing = false
-                                showDialog = false
-                                if (houseNumber != null) {
-                                    Log.d("UpdateKeterangan", "Nomor Rumah: $houseNumber, Keterangan: $userText")
-//                                    viewModel.addUserInformation(houseNumber, userText)
-                                }
-                            },
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = colorResource(id = R.color.primary)
-                            )
-                        ) {
-                            Text("Selesai",
-                                color = Color.White
-                            )
-                        }
-                    } else {
-                        Button(
-                            onClick = {
-                                isEditing = true
-                            },
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = colorResource(id = R.color.primary)
-                            )
-                        ) {
-                            Text("Edit")
-                        }
-                    }
-                },
-                dismissButton = {
-                    TextButton(
-                        onClick = {
-                            showDialog = false
-                            isEditing = false
-                            isTextChanges = false
-                        },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = colorResource(id = R.color.backgroundButtonBack)
+    }
+
+    Button(
+        onClick = {
+            viewModel.savePhoneNumberAndNote(houseNumber,phoneNumber, note)
+        },
+        contentPadding = PaddingValues(8.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = colorResource(id = R.color.background_button_userInformationScreen)
+        ),
+        elevation = ButtonDefaults.elevatedButtonElevation(
+            defaultElevation = 4.dp
+        ),
+        shape = RoundedCornerShape(16.dp),
+        modifier = Modifier.padding(start = 24.dp)
+    ) {
+        Text(
+            text = "Simpan",
+            fontSize = 13.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color.White,
+            modifier = Modifier
+                .padding(horizontal = 16.dp)
+        )
+    }
+}
+
+
+@Composable
+fun UserInformationForAdmin(
+    modifier: Modifier = Modifier,
+    viewModel: ViewModel,
+    houseNumber: String
+) {
+    val userData by viewModel.userData.observeAsState(mapOf())
+    val phoneNumber by remember { mutableStateOf(userData["phoneNumber"] ?: "") }
+    val note by remember { mutableStateOf(userData["note"] ?: "") }
+
+    LaunchedEffect(houseNumber) {
+        while (true) {
+            viewModel.fetchUserData(houseNumber)
+            delay(2000)
+        }
+    }
+
+    Surface(
+        modifier
+            .padding(horizontal = 24.dp)
+            .wrapContentSize(),
+        shape = RoundedCornerShape(16.dp),
+        shadowElevation = 4.dp
+    ) {
+        Column(
+            modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+                .background(Color.White, RoundedCornerShape(16.dp))
+                .padding(8.dp),
+        ) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                TextField(
+                    modifier = Modifier
+                        .wrapContentHeight()
+                        .fillMaxWidth(),
+                    value = phoneNumber,
+                    onValueChange = { },
+                    leadingIcon = {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_phonenumber),
+                            contentDescription = "ic_phonenumber",
+                            tint = colorResource(id = R.color.font2)
                         )
-                    ) {
-                        Text("Batal",
-                            color = colorResource(id = R.color.backgroundTextBack))
-                    }
-                }
+                    },
+                    placeholder = {
+                        Text(
+                            text = phoneNumber.ifEmpty { "Nomor Hp pengguna" },
+                            fontSize = 13.sp
+                        )
+                    },
+                    readOnly = true,
+                    colors = TextFieldDefaults.colors(
+                        unfocusedIndicatorColor = Color.White,
+                        focusedIndicatorColor = Color.White,
+                        focusedContainerColor = Color.White,
+                        unfocusedContainerColor = Color.White,
+                    ),
+                )
+            }
+            HorizontalDivider(
+                thickness = 1.dp,
+                color = colorResource(id = R.color.font3),
+                modifier = Modifier.padding(horizontal = 16.dp)
             )
+
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                TextField(
+                    modifier = Modifier
+                        .wrapContentHeight()
+                        .fillMaxWidth(),
+                    value = note,
+                    onValueChange = { },
+                    leadingIcon = {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_note),
+                            contentDescription = "ic_note",
+                            tint = colorResource(id = R.color.font2)
+                        )
+                    },
+                    placeholder = { // tampilkan data note disini
+                        Text(
+                            text = note.ifEmpty { "Keterangan rumah" },
+                            fontSize = 13.sp
+                        )
+                    },
+                    readOnly = true,
+                    colors = TextFieldDefaults.colors(
+                        unfocusedIndicatorColor = Color.White,
+                        focusedIndicatorColor = Color.White,
+                        focusedContainerColor = Color.White,
+                        unfocusedContainerColor = Color.White,
+                    )
+                )
+            }
         }
     }
 }
+
+

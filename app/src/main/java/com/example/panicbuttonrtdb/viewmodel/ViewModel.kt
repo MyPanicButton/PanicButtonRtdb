@@ -23,7 +23,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class ViewModel(private val context: Context) : ViewModel() {
+open class ViewModel(private val context: Context) : ViewModel() {
 
     private val database = FirebaseDatabase.getInstance()
     private val storage = FirebaseStorage.getInstance().reference
@@ -32,13 +32,14 @@ class ViewModel(private val context: Context) : ViewModel() {
     private val monitorRef = database.getReference("monitor")
     private val usersRef = database.getReference("users")
 
-    val userInformation = MutableLiveData<String>()
-
     var currentUserName by mutableStateOf("")
     var currentUserHouseNumber by mutableStateOf("")
 
     private val _monitorData = MutableLiveData<List<MonitorRecord>>()
     val monitorData: LiveData<List<MonitorRecord>> get() = _monitorData
+
+    private val _userData = MutableLiveData<Map<String, String>>()
+    val userData: LiveData<Map<String, String>> get() = _userData
 
     private val _latestRecord = MutableStateFlow(MonitorRecord())
     val latestRecord: StateFlow<MonitorRecord> = _latestRecord
@@ -61,9 +62,9 @@ class ViewModel(private val context: Context) : ViewModel() {
         currentUserHouseNumber = userPreferences.getHouseNumber() ?: ""
     }
 
-//    init {
-//        fetchLatestRecord()
-//    }
+    init {
+        fetchLatestRecord()
+    }
 
     init {
         // Inisialisasi untuk mendapatkan status awal buzzer dari Firebase
@@ -266,20 +267,24 @@ class ViewModel(private val context: Context) : ViewModel() {
             })
     }
 
-    // fun mengambil 4 data dan menampilkan 3
+
+    // fun menampilkan 3 data
     fun latestMonitorItem() {
-        monitorRef.orderByKey().limitToLast(3) // take 4 data terbaru
+        monitorRef.orderByKey().limitToLast(3) // take 3 data terbaru
             .addValueEventListener(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     val records = mutableListOf<MonitorRecord>()
 
                     for (recordSnapshot in snapshot.children.reversed()) {
                         val record = recordSnapshot.getValue(MonitorRecord::class.java)
-                        record?.let { records.add(it) }
+                        record?.let { records.add(it)
 
                     }
 
                     _monitorData.value = records
+                    }
+
+                    _monitorData.value = records // take 3 data
                 }
 
                 override fun onCancelled(error: DatabaseError) {
@@ -287,6 +292,7 @@ class ViewModel(private val context: Context) : ViewModel() {
                 }
             })
     }
+
 
     // Fungsi untuk menampilkan detail rekap berdasarkan nomor rumah
     fun detailRekap(houseNumber: String) {
@@ -349,7 +355,7 @@ class ViewModel(private val context: Context) : ViewModel() {
                         for (userSnapshot in snapshot.children) {
                             userSnapshot.ref.child(imageType).setValue(imageUri)
                                 .addOnSuccessListener {
-                                    Toast.makeText(context, "$imageType berhasil di perbaharui", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, "$imageType berhasil di diperbaharui. Tunggu beberapa saat", Toast.LENGTH_SHORT).show()
                                 }
                         }
                     }
@@ -367,43 +373,57 @@ class ViewModel(private val context: Context) : ViewModel() {
 
     }
 
-//    fun addUserInformation(houseNumber: String, userText: String) {
-//        val userRef = database.getReference("users").push()
-//
-//        val data = mapOf("information" to userText)
-//        userRef.setValue(data)
-//            .addOnSuccessListener {
-//                Log.d("Firebase", "Data berhasil ditambahkan ke Firebase")
-//            }
-//            .addOnFailureListener { e ->
-//                Log.e("Firebase", "Gagal menambahkan data ke Firebase", e)
-//            }
-//    }
-
-    fun getHistoryByHouseNumber(houseNumber: String): LiveData<List<MonitorRecord>> {
-        val historyLiveData = MutableLiveData<List<MonitorRecord>>()
-
-        monitorRef.orderByChild("houseNumber").equalTo(houseNumber)
-            .addValueEventListener(object : ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    val historyList = mutableListOf<MonitorRecord>()
-                    for (data in snapshot.children) {
-                        val record = data.getValue(MonitorRecord::class.java)
-                        if (record != null) {
-                            historyList.add(record)
-                        }
+    // fun utk save no hp & note user
+    fun savePhoneNumberAndNote(houseNumber: String, phoneNumber: String, note: String) {
+        usersRef.orderByChild("houseNumber").equalTo(houseNumber)
+            .addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if (snapshot.exists()) {
+                    for (child in snapshot.children) {
+                        child.ref.child("phoneNumber").setValue(phoneNumber)
+                        child.ref.child("note").setValue(note)
+                            .addOnCompleteListener { task ->
+                                if (task.isSuccessful) {
+                                    Log.d("Firebase", "Data berhasil diperbarui untuk $houseNumber")
+                                    Toast.makeText(context, "Keterangan berhasil simpan", Toast.LENGTH_SHORT).show()
+                                } else {
+                                    Log.e("Firebase", "Gagal memperbarui data: ${task.exception?.message}")
+                                }
+                            }
                     }
-                    historyLiveData.value = historyList
+                } else {
+                    Log.e("Firebase", "Data dengan houseNumber $houseNumber tidak ditemukan")
                 }
+            }
 
-                override fun onCancelled(error: DatabaseError) {
-                    Log.e("Firebase", "Error fetching data: ${error.message}")
-                }
-            })
-
-        return historyLiveData
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("Firebase", "Error: ${error.message}")
+            }
+        })
     }
 
+    //fun utk fetch no hp dan note user
+    fun fetchUserData(houseNumber: String) {
+        usersRef.orderByChild("houseNumber").equalTo(houseNumber)
+            .addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if (snapshot.exists()) {
+                    val userSnapshot = snapshot.children.first()
+                    val phoneNumber = userSnapshot.child("phoneNumber").getValue(String::class.java) ?: ""
+                    val note = userSnapshot.child("note").getValue(String::class.java) ?: ""
+                    _userData.postValue(
+                        mapOf(
+                            "phoneNumber" to phoneNumber,
+                            "note" to note)
+                    )
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("Firebase", "Gagal mengambil data: ${error.message}")
+            }
+        })
+    }
 
     private fun getCurrentTimestampFormatted(): String {
         val sdf = java.text.SimpleDateFormat("yyyy-MM-dd 'waktu' HH:mm", java.util.Locale.getDefault())

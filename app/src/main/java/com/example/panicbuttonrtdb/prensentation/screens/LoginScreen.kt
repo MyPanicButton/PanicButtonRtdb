@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -16,6 +17,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
@@ -35,6 +38,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
@@ -61,116 +66,136 @@ fun LoginScreen(
     val (password, setPassword) = remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }  // Indikator loading
 
-    Box(
+    Column(
         modifier
             .background(color = colorResource(id = R.color.primary))
-            .fillMaxSize(),
-        contentAlignment = Alignment.BottomCenter
-    ) {
+            .fillMaxSize()
+    ){
         Box(
             modifier
-                .height(600.dp)
-                .background(
-                    color = Color.White, RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
-                )
                 .fillMaxWidth()
-                .padding(start = 24.dp, end = 24.dp)
-        ){
-            Column(
+                .wrapContentHeight()
+                .padding(top = 60.dp),
+            contentAlignment = Alignment.TopCenter
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.ic_logo),
+                contentDescription = "ic_logo",
+                modifier = Modifier.size(160.dp)
+            )
+        }
+        Box(
+            modifier
+                .background(color = colorResource(id = R.color.primary))
+                .fillMaxSize(),
+            contentAlignment = Alignment.BottomCenter
+        ) {
+            Box(
                 modifier
-                    .padding(top = 40.dp)
-                    .fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = "Login",
-                    fontSize = 36.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = colorResource(id = R.color.font)
-                )
-                Spacer(modifier = Modifier.height(44.dp))
-                OutlinedTextField(
-                    value = houseNumber,
-                    onValueChange = {houseNumber = it},
-                    label = { Text(text = "Nomor Rumah") },
-                    shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(
-                        imeAction = ImeAction.Next
-                    ),
-                    leadingIcon = {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_home),
-                            contentDescription = "ic home",
-                            modifier = Modifier.size(24.dp)
-                        )
-                    },
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = colorResource(id = R.color.font),
-                        focusedLabelColor = colorResource(id = R.color.font),
-                        focusedLeadingIconColor = colorResource(id = R.color.font),
-                        unfocusedLeadingIconColor = colorResource(id = R.color.defauld),
-                        cursorColor = colorResource(id = R.color.font)
+                    .height(600.dp)
+                    .background(
+                        color = Color.White, RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
                     )
-                )
-                Spacer(modifier = Modifier.height(12.dp))
-
-                OutlinedTextFieldPassword(password, setPassword)
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                Button(
-                    onClick = {
-                        if (houseNumber.isNotEmpty() && password.isNotEmpty()) {
-                            isLoading = true
-
-                            viewModel.validateLogin(houseNumber, password) { success, isAdmin ->
-                                isLoading = false
-                                if (success) {
-                                    if (isAdmin) {
-                                        // Navigasi ke Dashboard Admin jika login sebagai admin
-                                        navController.navigate("dashboard_admin")
-                                    } else {
-                                        // Navigasi ke Dashboard User jika login sebagai user biasa
-                                        navController.navigate("dashboard")
-                                    }
-                                } else {
-                                    Toast.makeText(context, "Nomor rumah atau Sandi salah", Toast.LENGTH_SHORT).show()
-                                }
-                            }
-                        } else {
-                            Toast.makeText(context,"Mohon isi semua kolom", Toast.LENGTH_SHORT).show()
-                        }
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(50.dp)
-                    ,
-                    enabled = !isLoading, // Matikan tombol saat loading
-                    shape = RoundedCornerShape(26.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = colorResource(id = R.color.font),
-                        contentColor = Color.White
-                    )
-                ) {
-                    Text(text = "Login")
-                }
-
-                Spacer(modifier = Modifier.height(36.dp))
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    .fillMaxWidth()
+                    .padding(start = 24.dp, end = 24.dp)
+            ){
+                Column(
+                    modifier
+                        .padding(top = 40.dp)
+                        .fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = "Belum memiliki akun?"
-                    )
-                    Text(
-                        modifier = Modifier
-                            .clickable { navController.navigate("signup") },
-                        text = "Daftar",
+                        text = "Login",
+                        fontSize = 36.sp,
                         fontWeight = FontWeight.Bold,
-                        color = colorResource(id = R.color.font)
+                        color = colorResource(id = R.color.font),
+
                     )
+                    Spacer(modifier = Modifier.height(44.dp))
+                    OutlinedTextField(
+                        value = houseNumber,
+                        onValueChange = {houseNumber = it},
+                        label = { Text(text = "Nomor Rumah") },
+                        shape = RoundedCornerShape(8.dp),
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(
+                            imeAction = ImeAction.Next
+                        ),
+                        leadingIcon = {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_home),
+                                contentDescription = "ic home",
+                                modifier = Modifier.size(24.dp)
+                            )
+                        },
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = colorResource(id = R.color.font),
+                            focusedLabelColor = colorResource(id = R.color.font),
+                            focusedLeadingIconColor = colorResource(id = R.color.font),
+                            unfocusedLeadingIconColor = colorResource(id = R.color.defauld),
+                            cursorColor = colorResource(id = R.color.font)
+                        )
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    OutlinedTextFieldPassword(password, setPassword)
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    Button(
+                        onClick = {
+                            if (houseNumber.isNotEmpty() && password.isNotEmpty()) {
+                                isLoading = true
+
+                                viewModel.validateLogin(houseNumber, password) { success, isAdmin ->
+                                    isLoading = false
+                                    if (success) {
+                                        if (isAdmin) {
+                                            // Navigasi ke Dashboard Admin jika login sebagai admin
+                                            navController.navigate("dashboard_admin")
+                                        } else {
+                                            // Navigasi ke Dashboard User jika login sebagai user biasa
+                                            navController.navigate("dashboard")
+                                        }
+                                    } else {
+                                        Toast.makeText(context, "Nomor rumah atau Sandi salah", Toast.LENGTH_SHORT).show()
+                                    }
+                                }
+                            } else {
+                                Toast.makeText(context,"Mohon isi semua kolom", Toast.LENGTH_SHORT).show()
+                            }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(50.dp)
+                        ,
+                        enabled = !isLoading, // Matikan tombol saat loading
+                        shape = RoundedCornerShape(26.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = colorResource(id = R.color.font),
+                            contentColor = Color.White
+                        )
+                    ) {
+                        Text(text = "Login")
+                    }
+
+                    Spacer(modifier = Modifier.height(36.dp))
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Text(
+                            text = "Belum memiliki akun?"
+                        )
+                        Text(
+                            modifier = Modifier
+                                .clickable { navController.navigate("signup") },
+                            text = "Daftar",
+                            fontWeight = FontWeight.Bold,
+                            color = colorResource(id = R.color.font)
+                        )
+                    }
                 }
             }
         }

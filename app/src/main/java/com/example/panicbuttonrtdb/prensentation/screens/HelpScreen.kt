@@ -337,13 +337,3 @@ fun HelpScreen(
         )
     }
 }
-
-
-
-@Preview(showBackground = true)
-@Composable
-private fun Liat() {
-    HelpScreen(
-        navController = rememberNavController()
-    )
-}
