@@ -51,10 +51,11 @@ fun ToggleSwitch(
     context: Context
 ) {
 
-    val buzzerState by viewModel.buzzerState.observeAsState(initial = "Off")
+
     var showDialog by remember { mutableStateOf(false) } // State untuk menampilkan dialog
     var pendingToggleState by remember { mutableStateOf(false) } // State untuk menyimpan toggle sementara
     var selectedPriority by remember { mutableStateOf("Darurat") }
+    val buzzerState by viewModel.buzzerState.observeAsState(initial = "Off")
     var message by remember { mutableStateOf("") }
     var showError by remember {mutableStateOf(false)}
 
@@ -74,6 +75,7 @@ fun ToggleSwitch(
                     pendingToggleState = true
                     showDialog = true
                 } else {
+                    viewModel.updateBuzzerState(false)
                     viewModel.setBuzzerState("off")
                 }
             },
@@ -114,6 +116,7 @@ fun ToggleSwitch(
         LaunchedEffect(key1 = buzzerState) {
             delay(20000)
             viewModel.setBuzzerState("off")
+            viewModel.updateBuzzerState(isOn = false)
         }
     }
     if (showDialog) {
@@ -183,6 +186,10 @@ fun ToggleSwitch(
                         } else {
                             showError = false
                             viewModel.setBuzzerState("on")
+                            viewModel.updateBuzzerState(
+                                isOn = true,
+                                priority = selectedPriority
+                            )
                             viewModel.saveMonitorData(
                                 message = message,
                                 priority = selectedPriority,

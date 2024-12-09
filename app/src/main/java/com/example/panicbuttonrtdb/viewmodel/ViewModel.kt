@@ -28,6 +28,7 @@ open class ViewModel(private val context: Context) : ViewModel() {
     private val database = FirebaseDatabase.getInstance()
     private val storage = FirebaseStorage.getInstance().reference
     private val databaseRef = FirebaseDatabase.getInstance().getReference("/buzzer")
+    private val databaseRef2 = FirebaseDatabase.getInstance().getReference("/buzzer_priority")
     private val userPreferences = UserPreferences(context)
     private val monitorRef = database.getReference("monitor")
     private val usersRef = database.getReference("users")
@@ -229,8 +230,32 @@ open class ViewModel(private val context: Context) : ViewModel() {
         databaseRef.setValue(state)
     }
 
-    fun fetchMonitorData() {
+    //test function
+    fun updateBuzzerState(isOn: Boolean, priority: String? = null) {
+        if (isOn && priority != null) {
+            databaseRef2.setValue(priority)
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        Log.d("UpdateBuzzerState", "Buzzer updated to: $priority")
+                    } else {
+                        Log.e("UpdateBuzzerState", "Failed to update buzzer", task.exception)
+                    }
+                }
+        } else {
+            // Ketika toggle switch dimatikan, set value ke "off"
+            databaseRef2.setValue("off")
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        Log.d("UpdateBuzzerState", "Buzzer reset to off")
+                    } else {
+                        Log.e("UpdateBuzzerState", "Failed to reset buzzer", task.exception)
+                    }
+                }
+        }
+    }
 
+
+    fun fetchMonitorData() {
         monitorRef.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val records = mutableListOf<MonitorRecord>()
