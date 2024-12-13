@@ -40,7 +40,6 @@ fun DetailRekapItem(
 
 ) {
 
-
     LaunchedEffect(record) {
         while (true) {
             viewModel.detailRekap(record.houseNumber)

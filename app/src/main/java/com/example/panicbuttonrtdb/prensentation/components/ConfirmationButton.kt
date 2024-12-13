@@ -13,7 +13,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -40,6 +44,7 @@ fun ConfirmationButton(
 ) {
     val ifDone by viewModel.monitorData.observeAsState(emptyList())
     var isClicked by remember { mutableStateOf(false) }
+    var showDialog by remember {mutableStateOf(false)}
 
     Box(
         modifier
@@ -96,8 +101,7 @@ fun ConfirmationButton(
                         .height(30.dp)
                         .background(colorResource(id = R.color.primary), RoundedCornerShape(16.dp))
                         .clickable {
-                            isClicked = true
-                            onConfirm()
+                            showDialog = true
                         },
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
@@ -110,5 +114,35 @@ fun ConfirmationButton(
                 }
             }
         }
+    }
+    
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = { showDialog = false },
+            title = { Text(text = "Konfirmasi Pesan")},
+            text = { Text(text = "Apakah pesan darurat sudah diatasi?")},
+            confirmButton = { 
+                TextButton(
+                    onClick = {
+                        isClicked = true
+                        showDialog = false
+                        onConfirm()
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = colorResource(id = R.color.font)
+                    )
+                ) { Text(text = "Ya") }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { showDialog = false },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = colorResource(id = R.color.font)
+                    )
+                ) {
+                    Text(text = "Tidak")
+                }
+            }
+        )
     }
 }
