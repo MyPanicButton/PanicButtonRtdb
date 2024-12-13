@@ -66,7 +66,7 @@ fun DashboardUserScreen(
 ) {
     val sharedPref = context.getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
     val houseNumber = sharedPref.getString("house_number", "") ?: ""
-    val databaseRef = FirebaseDatabase.getInstance().getReference("users")
+    val databaseRef = FirebaseDatabase.getInstance().getReference("desaSalam/users")
     val recordData by viewModel.monitorData.observeAsState(emptyList())
     val emptyProfile = R.drawable.ic_empty_profile
     var user by remember {mutableStateOf<User?>(null)}

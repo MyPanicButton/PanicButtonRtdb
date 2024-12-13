@@ -64,7 +64,7 @@ fun DetailRekapScreen(
     navController : NavController,
     houseNumber: String
 ) {
-    val databaseRef = FirebaseDatabase.getInstance().getReference("users")
+    val databaseRef = FirebaseDatabase.getInstance().getReference("desaSalam/users")
     var user by remember { mutableStateOf<User?>(null) }
     val emptyProfile = R.drawable.ic_empty_profile
     val emptyCover = R.drawable.empty_image

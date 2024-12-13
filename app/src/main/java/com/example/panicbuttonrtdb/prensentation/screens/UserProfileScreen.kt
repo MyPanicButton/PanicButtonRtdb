@@ -68,7 +68,7 @@ fun UserProfileScreen(
 
     val sharedPref = context.getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
     val houseNumber = sharedPref.getString("house_number", "") ?: ""
-    val databaseRef = FirebaseDatabase.getInstance().getReference("users")
+    val databaseRef = FirebaseDatabase.getInstance().getReference("desaSalam/users")
     val userName = sharedPref.getString("user_name", "nama user tidak ditemukan")
     val nomorRumah = sharedPref.getString("house_number", "norum tidak ada")
     var user by remember {mutableStateOf<User?>(null)}

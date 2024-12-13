@@ -27,10 +27,10 @@ open class ViewModel(private val context: Context) : ViewModel() {
 
     private val database = FirebaseDatabase.getInstance()
     private val storage = FirebaseStorage.getInstance().reference
-    private val databaseRef = FirebaseDatabase.getInstance().getReference("/buzzer")
+    private val databaseRef = FirebaseDatabase.getInstance().getReference("desaSalam/buzzer")
     private val userPreferences = UserPreferences(context)
-    private val monitorRef = database.getReference("monitor")
-    private val usersRef = database.getReference("users")
+    private val monitorRef = database.getReference("desaSalam/monitor")
+    private val usersRef = database.getReference("desaSalam/users")
 
     var currentUserName by mutableStateOf("")
     var currentUserHouseNumber by mutableStateOf("")
@@ -331,7 +331,7 @@ open class ViewModel(private val context: Context) : ViewModel() {
 
     //fun upload foto ke storage
     fun uploadImage(imageUri: Uri, houseNumber: String, imageType: String, context: Context) {
-        val imageRef = storage.child("${imageType}/$houseNumber.jpg")
+        val imageRef = storage.child("desaSalam/${imageType}/$houseNumber.jpg")
 
         imageRef.putFile(imageUri)
             .addOnSuccessListener {
