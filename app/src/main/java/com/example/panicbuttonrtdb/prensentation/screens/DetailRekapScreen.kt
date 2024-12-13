@@ -130,7 +130,7 @@ fun DetailRekapScreen(
                     .size(36.dp)
                     .clip(CircleShape),
                 onClick = {
-                    navController.navigate("dashboard_admin")
+                    navController.popBackStack()
                 },
                 colors = IconButtonDefaults.iconButtonColors(
                     containerColor = colorResource(id = R.color.background_button),
