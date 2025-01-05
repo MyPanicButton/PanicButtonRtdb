@@ -191,6 +191,9 @@ fun DetailRekapScreen(
                             color = colorResource(id = R.color.font2),
                             maxLines = 1
                         )
+
+                        Spacer(modifier.padding(bottom = 24.dp))
+
                         Spacer(modifier = Modifier.padding(bottom = 48.dp))
                     }
                     }

@@ -302,7 +302,11 @@ open class ViewModel(private val context: Context) : ViewModel() {
 
                     for (recordSnapshot in snapshot.children.reversed()) {
                         val record = recordSnapshot.getValue(MonitorRecord::class.java)
-                        record?.let { records.add(it) }
+                        record?.let { records.add(it)
+
+                    }
+
+                    _monitorData.value = records
                     }
 
                     _monitorData.value = records // take 3 data
