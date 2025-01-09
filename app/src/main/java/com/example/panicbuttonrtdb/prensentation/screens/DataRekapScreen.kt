@@ -171,7 +171,7 @@ fun SearchDataRekap(
                 onValueChange = onQueryChange,
                 placeholder = {
                     Text(
-                        "Search",
+                        "Cari nomor rumah",
                         color = colorResource(id = R.color.font3),
                         style = TextStyle(lineHeight = 20.sp)
                     )
