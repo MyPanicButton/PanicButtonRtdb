@@ -230,7 +230,7 @@ open class ViewModel(private val context: Context) : ViewModel() {
         databaseRef.setValue(state)
     }
 
-    //test function
+    //update buzzer
     fun updateBuzzerState(isOn: Boolean, priority: String? = null) {
         if (isOn && priority != null) {
             databaseRef2.setValue(priority)
@@ -445,7 +445,7 @@ open class ViewModel(private val context: Context) : ViewModel() {
             }
 
             override fun onCancelled(error: DatabaseError) {
-                Log.e("Firebase", "Gagal mengambil data: ${error.message}")
+                Log.e("fetchUserData", "Gagal mengambil data: ${error.message}")
             }
         })
     }
